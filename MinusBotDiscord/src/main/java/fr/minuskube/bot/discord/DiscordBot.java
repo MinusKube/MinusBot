@@ -89,7 +89,7 @@ public class DiscordBot {
         try {
             instance = new DiscordBot();
 
-            DiscordBotAPI.login("MTgyMjM3MjIwMjk4Njg2NDY0.Ch0ZIw.V4wbyfW5wNFvMXD0nFaGSgRYbks");
+            DiscordBotAPI.login("<YOUR TOKEN HERE>");
         } catch(LoginException | InterruptedException e) {
             LOGGER.error("Error while login: ", e);
         }
