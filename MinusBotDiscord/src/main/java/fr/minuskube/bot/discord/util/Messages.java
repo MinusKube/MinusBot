@@ -5,10 +5,29 @@ import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.User;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Messages {
+
+    public static List<User> getUserMentions(Guild guild, String msg) {
+        Pattern pattern = Pattern.compile("<(@|@!)(\\d+)>");
+        Matcher matcher = pattern.matcher(msg);
+
+        List<User> result = new ArrayList<>();
+
+        while(matcher.find()) {
+            String id = matcher.group(2);
+            User user = guild.getUserById(id);
+
+            if(user != null)
+                result.add(user);
+        }
+
+        return result;
+    }
 
     public static String replaceMentions(Guild guild, String msg) {
         Pattern pattern = Pattern.compile("<(@|@!|@&|#)(\\d+)>");

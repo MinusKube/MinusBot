@@ -148,7 +148,8 @@ public class Quote {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "quote-" + author.getUsername().toLowerCase(), ".png");
-            channel.sendFile(tempFile, new MessageBuilder().appendMention(asker).build());
+            channel.sendFile(tempFile, new MessageBuilder().appendMention(asker)
+                    .appendString(" ").appendMention(author).build());
         } catch(IOException e) {
             LOGGER.error("Couldn't send quote:", e);
         }

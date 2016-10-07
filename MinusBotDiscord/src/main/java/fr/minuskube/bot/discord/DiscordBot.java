@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class DiscordBot {
@@ -42,6 +44,25 @@ public class DiscordBot {
 
     private JDA client;
     private LocalDateTime launchTime;
+
+    private Config config = new Config();
+
+    private void loadConfig() {
+        LOGGER.info("Loading config...");
+        File configFile = new File("config.txt");
+
+        if(!configFile.exists()) {
+            LOGGER.warn("Config file doesn't not exist, creating a new one.");
+
+            try {
+                config.saveDefault(configFile);
+            } catch(IOException e) {
+                LOGGER.error("Error while creating the default file:", e);
+            }
+        }
+        else
+            config.load(configFile);
+    }
 
     public void ready(JDA client) {
         this.client = client;
@@ -70,6 +91,9 @@ public class DiscordBot {
         client.addEventListener(new CommandListener(this));
         client.addEventListener(new GameListener(this));
 
+        LOGGER.info("Setting status...");
+        client.getAccountManager().setGame("$help - v1.1");
+
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
     }
@@ -84,12 +108,20 @@ public class DiscordBot {
     public User getOwner() { return client.getUserById("87941393766420480"); }
     public LocalDateTime getLaunchTime() { return launchTime; }
 
+    public Config getConfig() { return config; }
+
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {
         try {
             instance = new DiscordBot();
+            instance.loadConfig();
 
-            DiscordBotAPI.login("<YOUR TOKEN HERE>");
+            String token = instance.getConfig().getToken();
+
+            if(token != null)
+                DiscordBotAPI.login(token);
+            else
+                LOGGER.error("The 'token' is not set in the config file, can't start.");
         } catch(LoginException | InterruptedException e) {
             LOGGER.error("Error while login: ", e);
         }

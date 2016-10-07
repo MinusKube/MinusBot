@@ -52,7 +52,6 @@ public class QuoteCommand extends Command {
         }
 
         List<Message> msgs = channel.getHistory().retrieve();
-
         msgs.remove(0);
 
         Optional<Message> opMsg = msgs.stream()

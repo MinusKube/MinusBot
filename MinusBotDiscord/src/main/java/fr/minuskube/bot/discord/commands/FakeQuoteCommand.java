@@ -1,6 +1,7 @@
 package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBotAPI;
+import fr.minuskube.bot.discord.util.Messages;
 import fr.minuskube.bot.discord.util.Quote;
 import fr.minuskube.bot.discord.util.Users;
 import net.dv8tion.jda.MessageBuilder;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.entities.User;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class FakeQuoteCommand extends Command {
 
@@ -23,7 +25,7 @@ public class FakeQuoteCommand extends Command {
         if(args.length < 1) {
             msg.getChannel().sendMessage(new MessageBuilder()
                     .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                    .appendString("$fakequote <player [#0123]> <message").build());
+                    .appendString("$fakequote <user [#0123]> <message>").build());
             return;
         }
 
@@ -47,6 +49,13 @@ public class FakeQuoteCommand extends Command {
             user = Users.search(channel.getGuild(), args[0].split("#")[0], args[0].split("#")[1]);
         else
             user = Users.search(channel.getGuild(), args[0]);
+
+        if(user == null) {
+            List<User> mentions = Messages.getUserMentions(channel.getGuild(), args[0]);
+
+            if(mentions.size() == 1)
+                user = mentions.get(0);
+        }
 
         if(user != null) {
             String message = "";
