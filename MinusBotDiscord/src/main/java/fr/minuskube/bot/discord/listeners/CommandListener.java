@@ -43,7 +43,7 @@ public class CommandListener extends Listener {
             }
         }
 
-        String content = msg.getContent().substring(1);
+        String content = msg.getRawContent().substring(1);
 
         LOGGER.info("{} issued command: ${}", msg.getAuthor().getUsername(), content);
 

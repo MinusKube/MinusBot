@@ -109,7 +109,7 @@ public class Quote {
         Role role = null;
 
         for(Role r : roles) {
-            if(r.getColor() == Color.BLACK.getRGB())
+            if(r.getColor() == 0)
                 continue;
 
             if(role == null)

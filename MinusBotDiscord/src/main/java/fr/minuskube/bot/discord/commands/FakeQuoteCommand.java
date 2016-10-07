@@ -9,12 +9,16 @@ import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class FakeQuoteCommand extends Command {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FakeQuoteCommand.class);
 
     public FakeQuoteCommand() {
         super("fakequote", Collections.singletonList("fq"), "Create a fake quote with a given player and message.");
@@ -43,18 +47,18 @@ public class FakeQuoteCommand extends Command {
             return;
         }
 
-        User user;
+        User user = null;
 
-        if(args[0].contains("#"))
-            user = Users.search(channel.getGuild(), args[0].split("#")[0], args[0].split("#")[1]);
-        else
-            user = Users.search(channel.getGuild(), args[0]);
+        List<User> mentions = Messages.getUserMentions(channel.getGuild(), args[0]);
+
+        if(mentions.size() == 1)
+            user = mentions.get(0);
 
         if(user == null) {
-            List<User> mentions = Messages.getUserMentions(channel.getGuild(), args[0]);
-
-            if(mentions.size() == 1)
-                user = mentions.get(0);
+            if(args[0].contains("#"))
+                user = Users.search(channel.getGuild(), args[0].split("#")[0], args[0].split("#")[1]);
+            else
+                user = Users.search(channel.getGuild(), args[0]);
         }
 
         if(user != null) {

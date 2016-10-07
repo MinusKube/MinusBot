@@ -36,7 +36,7 @@ public class DiscordBot {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordBot.class);
 
     public static final Message UNKNOWN_COMMAND = new MessageBuilder()
-            .appendString("Sorry, this command is")
+            .appendString("Sorry, this command is ")
             .appendString("unknown", MessageBuilder.Formatting.BOLD)
             .appendString(". Use $help to see available commands.").build();
 

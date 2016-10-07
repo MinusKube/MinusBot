@@ -30,7 +30,7 @@ public class Users {
                     score = nickScore;
             }
 
-            if(BigDecimal.valueOf(bestScore).intValueExact() == -1 || score > bestScore) {
+            if(BigDecimal.valueOf(bestScore).intValue() == -1 || score > bestScore) {
                 bestUser = user;
                 bestScore = score;
             }
@@ -53,10 +53,6 @@ public class Users {
                 continue;
 
             double score = StringUtils.getJaroWinklerDistance(user.getUsername(), name);
-
-            if(score <= 0.75)
-                continue;
-
             String nick = guild.getNicknameForUser(user);
 
             if(nick != null) {
@@ -66,7 +62,7 @@ public class Users {
                     score = nickScore;
             }
 
-            if(BigDecimal.valueOf(bestScore).intValueExact() == -1 || score > bestScore) {
+            if(BigDecimal.valueOf(bestScore).intValue() == -1 || score > bestScore) {
                 bestUser = user;
                 bestScore = score;
             }
