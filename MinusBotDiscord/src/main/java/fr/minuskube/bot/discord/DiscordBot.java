@@ -1,12 +1,14 @@
 package fr.minuskube.bot.discord;
 
 import fr.minuskube.bot.discord.commands.AddCommand;
+import fr.minuskube.bot.discord.commands.Command;
 import fr.minuskube.bot.discord.commands.DrawCommand;
 import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
 import fr.minuskube.bot.discord.commands.GamesCommand;
 import fr.minuskube.bot.discord.commands.GifCommand;
 import fr.minuskube.bot.discord.commands.HelpCommand;
 import fr.minuskube.bot.discord.commands.InfosCommand;
+import fr.minuskube.bot.discord.commands.MuteCommand;
 import fr.minuskube.bot.discord.commands.QuoteCommand;
 import fr.minuskube.bot.discord.commands.SexCommand;
 import fr.minuskube.bot.discord.commands.StopCommand;
@@ -18,6 +20,7 @@ import fr.minuskube.bot.discord.games.RPSGame;
 import fr.minuskube.bot.discord.games.TicTacToeGame;
 import fr.minuskube.bot.discord.listeners.CommandListener;
 import fr.minuskube.bot.discord.listeners.GameListener;
+import fr.minuskube.bot.discord.listeners.MuteListener;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.MessageBuilder;
 import net.dv8tion.jda.entities.Message;
@@ -80,6 +83,7 @@ public class DiscordBot {
         DiscordBotAPI.registerCommand(new StopCommand());
         DiscordBotAPI.registerCommand(new SexCommand());
         DiscordBotAPI.registerCommand(new DrawCommand());
+        DiscordBotAPI.registerCommand(new MuteCommand());
 
         LOGGER.info("Registering games...");
         DiscordBotAPI.registerGame(new NumberGame());
@@ -90,6 +94,7 @@ public class DiscordBot {
         LOGGER.info("Registering listeners...");
         client.addEventListener(new CommandListener(this));
         client.addEventListener(new GameListener(this));
+        client.addEventListener(new MuteListener(this));
 
         LOGGER.info("Setting status...");
         client.getAccountManager().setGame("$help - v1.1");

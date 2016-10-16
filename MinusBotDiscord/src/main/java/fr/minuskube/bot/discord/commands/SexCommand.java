@@ -112,10 +112,22 @@ public class SexCommand extends Command {
 
             for(int i = 0; i < amount; i++) {
                 Node item;
+
+                int tries = 0;
+
                 do {
                     int ri = new Random().nextInt(imgs.getLength());
                     item = imgs.item(ri);
-                } while(!item.hasAttributes() || item.getAttributes().getNamedItem("data-src") == null);
+
+                    tries++;
+                } while((!item.hasAttributes() || item.getAttributes().getNamedItem("data-src") == null)
+                        && tries < 2);
+
+                if(!item.hasAttributes() || item.getAttributes().getNamedItem("data-src") == null) {
+                    msg.getChannel().sendMessage(new MessageBuilder()
+                            .appendString("No image found to satisfy your desire.").build());
+                    return;
+                }
 
                 String url = (item.getAttributes().getNamedItem("data-src")
                         .getNodeValue().replace("/236/", "/620/"));
