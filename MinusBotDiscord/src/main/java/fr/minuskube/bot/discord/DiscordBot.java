@@ -1,7 +1,6 @@
 package fr.minuskube.bot.discord;
 
 import fr.minuskube.bot.discord.commands.AddCommand;
-import fr.minuskube.bot.discord.commands.Command;
 import fr.minuskube.bot.discord.commands.DrawCommand;
 import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
 import fr.minuskube.bot.discord.commands.GamesCommand;

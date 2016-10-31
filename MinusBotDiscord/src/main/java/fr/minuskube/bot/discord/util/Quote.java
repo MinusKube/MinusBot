@@ -1,7 +1,6 @@
 package fr.minuskube.bot.discord.util;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import net.dv8tion.jda.MessageBuilder;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
@@ -148,8 +147,7 @@ public class Quote {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "quote-" + author.getUsername().toLowerCase(), ".png");
-            channel.sendFile(tempFile, new MessageBuilder().appendMention(asker)
-                    .appendString(" ").appendMention(author).build());
+            channel.sendFile(tempFile, null);
         } catch(IOException e) {
             LOGGER.error("Couldn't send quote:", e);
         }

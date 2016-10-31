@@ -75,6 +75,9 @@ public class QuoteCommand extends Command {
         else {
             msg.getChannel().sendMessage(new MessageBuilder()
                     .appendString("No message could be found...").build());
+
+            if(channel.checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_MANAGE))
+                msg.deleteMessage();
         }
     }
 

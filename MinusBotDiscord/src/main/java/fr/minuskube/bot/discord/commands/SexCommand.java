@@ -34,9 +34,6 @@ public class SexCommand extends Command {
 
     @Override
     public void execute(Message msg, String[] args) {
-        String search = null;
-        int amount = 1;
-
         if(!msg.isPrivate()) {
             TextChannel channel = ((TextChannel) msg.getChannel());
             String cName = channel.getName().toLowerCase();
@@ -55,6 +52,9 @@ public class SexCommand extends Command {
                 return;
             }
         }
+
+        String search = null;
+        int amount = 1;
 
         if(msg.getAuthor().getId().equals("87279950075293696")) {
             try {
@@ -103,7 +103,7 @@ public class SexCommand extends Command {
             int page = new Random().nextInt(20) + 1;
 
             InputStream input = new URL(search == null  ? ("http://www.sex.com/?page=" + page)
-                                                        : ("http://www.sex.com/search/pictures?query=" + search))
+                    : ("http://www.sex.com/search/pictures?query=" + search))
                     .openStream();
             Document document = tidy.parseDOM(input, null);
             NodeList imgs = document.getElementsByTagName("img");
@@ -131,13 +131,7 @@ public class SexCommand extends Command {
 
                 String url = (item.getAttributes().getNamedItem("data-src")
                         .getNodeValue().replace("/236/", "/620/"));
-                URLConnection connection = new URL(url).openConnection();
-
-                InputStream img = connection.getInputStream();
-
-                File tempFile = StreamUtils.tempFileFromInputStream(img, "sex-"
-                        + msg.getAuthor().getUsername().toLowerCase(), url.substring(url.length() - 4));
-                msg.getChannel().sendFile(tempFile, null);
+                msg.getChannel().sendMessage(url);
             }
         } catch(IOException e) {
             LOGGER.error("Couldn't get image:", e);

@@ -47,15 +47,17 @@ public class CommandListener extends Listener {
 
         LOGGER.info("{} issued command: ${}", msg.getAuthor().getUsername(), content);
 
-        String cmdName = content.split(" ")[0];
-        String[] args = StringUtils.split(content.substring(cmdName.length()).trim(), " ");
+        new Thread(() -> {
+            String cmdName = content.split(" ")[0];
+            String[] args = StringUtils.split(content.substring(cmdName.length()).trim(), " ");
 
-        Command cmd = DiscordBotAPI.getCommand(cmdName);
+            Command cmd = DiscordBotAPI.getCommand(cmdName);
 
-        if(cmd != null)
-            cmd.execute(msg, args);
-        else
-            msg.getChannel().sendMessage(DiscordBot.UNKNOWN_COMMAND);
+            if(cmd != null)
+                cmd.execute(msg, args);
+            else
+                msg.getChannel().sendMessage(DiscordBot.UNKNOWN_COMMAND);
+        }).start();
     }
 
 }
