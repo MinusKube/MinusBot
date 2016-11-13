@@ -99,7 +99,7 @@ public class SexCommand extends Command {
 
                     tries++;
                 } while((!item.hasAttributes() || item.getAttributes().getNamedItem("data-src") == null)
-                        && tries < 2);
+                        && tries < 5);
 
                 if(!item.hasAttributes() || item.getAttributes().getNamedItem("data-src") == null) {
                     msg.getChannel().sendMessage(new MessageBuilder()

@@ -46,9 +46,10 @@ public class Quote {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         Color color = author.getColor();
-        int rgb =   ((color.getRed() & 0xFF) << 16) |
+
+        int rgb =   color != null ? (((color.getRed() & 0xFF) << 16) |
                     ((color.getGreen() & 0xFF) << 8)  |
-                    ((color.getBlue() & 0xFF));
+                    ((color.getBlue() & 0xFF))) : 0;
 
         JSONObject embed = new JSONObject(new HashMap<String, Object>() {
             {
