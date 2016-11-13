@@ -1,13 +1,14 @@
 package fr.minuskube.bot.discord.games;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.util.StreamUtils;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,8 @@ public class TicTacToeGame extends Game {
             waitingPlayer = player;
 
             channel.sendMessage(new MessageBuilder()
-                    .appendString("Game joined! The game will start when another player will join.").build());
+                    .appendString("Game joined! The game will start when another player will join.").build())
+                    .queue();
         }
         else {
             Player opponent = waitingPlayer;
@@ -77,7 +79,11 @@ public class TicTacToeGame extends Game {
 
     @Override
     public void receiveMsg(Message msg) {
-        List<Player> players = Player.getPlayers(msg.getAuthor());
+        TextChannel channel = (TextChannel) msg.getChannel();
+        Guild guild = channel.getGuild();
+        Member author = guild.getMember(msg.getAuthor());
+
+        List<Player> players = Player.getPlayers(author);
 
         for(Player p : players) {
             if(datas.get(p) == null ||
@@ -93,21 +99,23 @@ public class TicTacToeGame extends Game {
                 int input = Integer.parseInt(msg.getContent());
 
                 if(input < 1 || input > 9) {
-                    msg.getChannel().sendMessage(new MessageBuilder()
-                            .appendString("Please enter a number between 1 and 9...").build());
+                    channel.sendMessage(new MessageBuilder()
+                            .appendString("Please enter a number between 1 and 9...").build())
+                            .queue();
                     return;
                 }
 
                 if(data.getGrid()[input - 1] != -1) {
-                    msg.getChannel().sendMessage(new MessageBuilder()
-                            .appendString("There is already a shape on this space...").build());
+                    channel.sendMessage(new MessageBuilder()
+                            .appendString("There is already a shape on this space...").build())
+                            .queue();
                     return;
                 }
 
                 data.setGridSpace(input - 1, data.getShape(p));
                 data.setTurn(data.opponent(p));
 
-                sendImage(p, (TextChannel) msg.getChannel(), data);
+                sendImage(p, channel, data);
 
                 Player winner = null;
 
@@ -117,28 +125,30 @@ public class TicTacToeGame extends Game {
                     winner = data.opponent(p);
 
                 if(winner != null) {
-                    msg.getChannel().sendMessage(new MessageBuilder()
+                    channel.sendMessage(new MessageBuilder()
                             .appendString("The game is ended! ")
                             .appendString("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
-                            .appendMention(winner.getUser()).build());
+                            .appendMention(winner.getMember().getUser()).build())
+                            .queue();
 
-                    end(p, (TextChannel) msg.getChannel());
+                    end(p, channel);
                 }
                 else if(checkFull(data)) {
-                    msg.getChannel().sendMessage(new MessageBuilder()
+                    channel.sendMessage(new MessageBuilder()
                             .appendString("The game is ended! ")
-                            .appendString("Nobody won!", MessageBuilder.Formatting.BOLD).build());
+                            .appendString("Nobody won!", MessageBuilder.Formatting.BOLD).build())
+                            .queue();
 
-                    end(p, (TextChannel) msg.getChannel());
+                    end(p, channel);
                 }
 
-                if(((TextChannel) msg.getChannel()).checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_MANAGE))
-                    msg.deleteMessage();
+                if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+                    msg.deleteMessage().queue();
             } catch(NumberFormatException e) {
-                Message msg_ = msg.getChannel().sendMessage(new MessageBuilder()
-                        .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build());
-
-                Executors.newScheduledThreadPool(1).schedule(msg_::deleteMessage, 5, TimeUnit.SECONDS);
+                channel.sendMessage(new MessageBuilder()
+                        .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
+                        .queue(msg_ -> Executors.newScheduledThreadPool(1)
+                                .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
             }
 
             return;
@@ -220,11 +230,11 @@ public class TicTacToeGame extends Game {
         if(data.getLastMsg() != null)
             data.getLastMsg().deleteMessage();
 
-        User user = player.getUser();
-        String userName = channel.getGuild().getEffectiveNameForUser(user);
+        Member member = player.getMember();
+        String userName = member.getEffectiveName();
 
-        User opponent = data.opponent(player).getUser();
-        String opName = channel.getGuild().getEffectiveNameForUser(opponent);
+        Member opponent = data.opponent(player).getMember();
+        String opName = opponent.getEffectiveName();
 
         BufferedImage image = new BufferedImage(350, 162, BufferedImage.TYPE_INT_ARGB);
 
@@ -261,7 +271,6 @@ public class TicTacToeGame extends Game {
                 g2d.setColor(new Color(30, 30, 100));
 
                 g2d.setStroke(new BasicStroke(3.5f));
-                //g2d.draw(new Ellipse2D.Double(x + 8, y + 9, 32.5, 32.5));
                 g2d.drawOval(x + 8, y + 9, 32, 32);
             }
             else {
@@ -282,15 +291,15 @@ public class TicTacToeGame extends Game {
         g2d.drawString("O = " + (data.getShape(player) == 1 ? userName : opName), 180, 58);
 
         g2d.setColor(new Color(100, 100, 100));
-        g2d.drawString("Turn: " + channel.getGuild().getEffectiveNameForUser(data.getTurn().getUser()), 180, 100);
+        g2d.drawString("Turn: " + data.getTurn().getMember().getEffectiveName(), 180, 100);
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "game-ttt", ".png");
-            Message msg = channel.sendFile(tempFile, null);
+            Message msg = channel.sendFile(tempFile, null).block();
 
             data.setLastMsg(msg);
-        } catch(IOException e) {
-            LOGGER.error("Couldn't send image:", e);
+        } catch(IOException | RateLimitedException e) {
+            LOGGER.error("Couldn't send image: ", e);
         }
     }
 

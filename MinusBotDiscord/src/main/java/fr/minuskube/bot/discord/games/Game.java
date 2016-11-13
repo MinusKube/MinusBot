@@ -1,8 +1,8 @@
 package fr.minuskube.bot.discord.games;
 
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,8 +40,8 @@ public abstract class Game {
 
     public GameData getData(Player player) { return datas.get(player); }
 
-    public boolean isPlayer(User user) { return players.stream()
-            .filter(p -> p.getUser().equals(user)).findAny().isPresent(); }
+    public boolean isPlayer(Member member) { return players.stream()
+            .filter(p -> p.getMember().equals(member)).findAny().isPresent(); }
 
     public String getName() { return name; }
     public String getDescription() { return description; }

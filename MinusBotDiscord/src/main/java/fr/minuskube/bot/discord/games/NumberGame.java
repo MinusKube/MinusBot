@@ -1,10 +1,14 @@
 package fr.minuskube.bot.discord.games;
 
-import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 public class NumberGame extends Game {
 
-    private static Random random = new Random();
+    private static final Logger LOGGER = LoggerFactory.getLogger(NumberGame.class);
+
     private static final short TRIES = 6;
     private static final int MAX = 100;
+    private static Random random = new Random();
 
     public NumberGame() {
         super("number", "Find a number randomly generated between 1 and " + MAX + ".");
@@ -31,28 +37,34 @@ public class NumberGame extends Game {
         channel.sendMessage(new MessageBuilder()
                 .appendString("Welcome to the Find The Number game.\n")
                 .appendString("Find the correct number between 1 and " + MAX + ", ")
-                .appendString("you have `" + TRIES + "` tries.").build());
+                .appendString("you have `" + TRIES + "` tries.").build())
+                .queue();
     }
 
     @Override
     public void receiveMsg(Message msg) {
-        Player p = Player.getPlayers(msg.getAuthor()).get(0);
+        TextChannel channel = (TextChannel) msg.getChannel();
+        Guild guild = channel.getGuild();
+        Member author = guild.getMember(msg.getAuthor());
+
+        Player p = Player.getPlayers(author).get(0);
         NumberGameData data = ((NumberGameData) datas.get(p));
 
         try {
             int input = Integer.parseInt(msg.getContent());
 
             if(input < 1 || input > MAX) {
-                msg.getChannel().sendMessage(new MessageBuilder()
-                        .appendString("Please enter a number between 1 and " + MAX + "...").build());
+                channel.sendMessage(new MessageBuilder()
+                        .appendString("Please enter a number between 1 and " + MAX + "...").build())
+                        .queue();
                 return;
             }
 
-            if(((TextChannel) msg.getChannel()).checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_MANAGE))
-                msg.deleteMessage();
+            if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+                msg.deleteMessage().queue();
 
             if(data.getLastMsg() != null)
-                data.getLastMsg().deleteMessage();
+                data.getLastMsg().deleteMessage().queue();
 
             data.addTry(input);
 
@@ -62,45 +74,54 @@ public class NumberGame extends Game {
             if(input == number) {
                 String triesStr = data.getTries().toString();
 
-                msg.getChannel().sendMessage(new MessageBuilder()
+                channel.sendMessage(new MessageBuilder()
                         .appendString("\n`Tries: " + triesStr + "`\n\n")
                         .appendString("Yeah, correct guess (**`" + number + "`**), you won with `" + triesLeft + "`"
                                 + (triesLeft < 2 ? " try" : " tries") + " left.\n")
-                        .appendString("Thanks for playing!").build());
+                        .appendString("Thanks for playing!").build())
+                        .queue();
 
-                end(p, (TextChannel) msg.getChannel());
+                end(p, channel);
                 return;
             }
 
             if(triesLeft > 0) {
                 String triesStr = data.getTries().toString();
 
-                Message msg_ = msg.getChannel().sendMessage(new MessageBuilder()
-                        .appendString("\n`Tries: " + triesStr + "`\n\n")
-                        .appendString("Wrong guess! The correct number is **" + (number < input ? "lower" : "higher")
-                                + "** than " + input + ".\n")
-                        .appendString("`" + triesLeft + "`" + (triesLeft < 2 ? " try" : " tries") + " left.").build());
+                try {
+                    Message msg_ = channel.sendMessage(new MessageBuilder()
+                            .appendString("\n`Tries: " + triesStr + "`\n\n")
+                            .appendString("Wrong guess! The correct number is **"
+                                    + (number < input ? "lower" : "higher")
+                                    + "** than " + input + ".\n")
+                            .appendString("`" + triesLeft + "`" + (triesLeft < 2 ? " try" : " tries") + " left.")
+                            .build())
+                            .block();
 
-                data.setLastMsg(msg_);
+                    data.setLastMsg(msg_);
+                } catch(RateLimitedException e) {
+                    LOGGER.error("Couldn't send message:", e);
+                }
             }
             else {
                 String triesStr = data.getTries().toString();
 
-                msg.getChannel().sendMessage(new MessageBuilder()
+                channel.sendMessage(new MessageBuilder()
                         .appendString("\n`Tries: " + triesStr + "`\n\n")
                         .appendString("Wrong guess! You lose!\n", MessageBuilder.Formatting.BOLD)
-                        .appendString("The correct number was " + number + ".").build());
+                        .appendString("The correct number was " + number + ".").build())
+                        .queue();
 
-                end(p, (TextChannel) msg.getChannel());
+                end(p, channel);
                 return;
             }
 
             data.setTriesLeft(triesLeft);
         } catch(NumberFormatException e) {
-            Message msg_ = msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build());
-
-            Executors.newScheduledThreadPool(1).schedule(msg_::deleteMessage, 5, TimeUnit.SECONDS);
+            channel.sendMessage(new MessageBuilder()
+                    .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
+                    .queue(msg_ -> Executors.newScheduledThreadPool(1)
+                            .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
         }
     }
 

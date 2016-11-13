@@ -1,8 +1,8 @@
 package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Message;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
 
 public class HelpCommand extends Command {
 
@@ -23,7 +23,7 @@ public class HelpCommand extends Command {
                     MessageBuilder.Formatting.ITALICS);
         }
 
-        msg.getChannel().sendMessage(builder.build());
+        msg.getChannel().sendMessage(builder.build()).queue();
     }
 
 }

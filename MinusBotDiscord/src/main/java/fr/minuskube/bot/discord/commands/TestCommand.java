@@ -1,6 +1,6 @@
 package fr.minuskube.bot.discord.commands;
 
-import net.dv8tion.jda.entities.Message;
+import net.dv8tion.jda.core.entities.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +10,8 @@ public class TestCommand extends Command {
 
     public TestCommand() {
         super("test", "Command for debugging.");
+
+        this.hidden = true;
     }
 
     @Override

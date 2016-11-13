@@ -1,5 +1,6 @@
 package fr.minuskube.bot.discord;
 
+import com.google.gson.Gson;
 import fr.minuskube.bot.discord.commands.AddCommand;
 import fr.minuskube.bot.discord.commands.DrawCommand;
 import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
@@ -8,6 +9,7 @@ import fr.minuskube.bot.discord.commands.GifCommand;
 import fr.minuskube.bot.discord.commands.HelpCommand;
 import fr.minuskube.bot.discord.commands.InfosCommand;
 import fr.minuskube.bot.discord.commands.MuteCommand;
+import fr.minuskube.bot.discord.commands.PollCommand;
 import fr.minuskube.bot.discord.commands.QuoteCommand;
 import fr.minuskube.bot.discord.commands.SexCommand;
 import fr.minuskube.bot.discord.commands.StopCommand;
@@ -20,11 +22,14 @@ import fr.minuskube.bot.discord.games.TicTacToeGame;
 import fr.minuskube.bot.discord.listeners.CommandListener;
 import fr.minuskube.bot.discord.listeners.GameListener;
 import fr.minuskube.bot.discord.listeners.MuteListener;
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.SelfInfo;
-import net.dv8tion.jda.entities.User;
+import fr.minuskube.bot.discord.trello.TCPServer;
+import fr.minuskube.bot.discord.util.Webhook;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +53,7 @@ public class DiscordBot {
     private LocalDateTime launchTime;
 
     private Config config = new Config();
+    private Gson gson = new Gson();
 
     private void loadConfig() {
         LOGGER.info("Loading config...");
@@ -69,34 +75,48 @@ public class DiscordBot {
     public void ready(JDA client) {
         this.client = client;
 
+        LOGGER.info("Starting server...");
+        new TCPServer().start();
+
         LOGGER.info("Registering commands...");
-        DiscordBotAPI.registerCommand(new HelpCommand());
-        DiscordBotAPI.registerCommand(new InfosCommand());
-        DiscordBotAPI.registerCommand(new AddCommand());
-        DiscordBotAPI.registerCommand(new SuggestCommand());
-        DiscordBotAPI.registerCommand(new GifCommand());
-        DiscordBotAPI.registerCommand(new QuoteCommand());
-        DiscordBotAPI.registerCommand(new FakeQuoteCommand());
-        DiscordBotAPI.registerCommand(new GamesCommand());
-        DiscordBotAPI.registerCommand(new TestCommand());
-        DiscordBotAPI.registerCommand(new StopCommand());
-        DiscordBotAPI.registerCommand(new SexCommand());
-        DiscordBotAPI.registerCommand(new DrawCommand());
-        DiscordBotAPI.registerCommand(new MuteCommand());
+        DiscordBotAPI.registerCommands(
+                new HelpCommand(),
+                new InfosCommand(),
+                new AddCommand(),
+                new SuggestCommand(),
+                new GifCommand(),
+                new QuoteCommand(),
+                new FakeQuoteCommand(),
+                new GamesCommand(),
+                new TestCommand(),
+                new StopCommand(),
+                new SexCommand(),
+                new DrawCommand(),
+                new MuteCommand(),
+                new PollCommand()
+        );
 
         LOGGER.info("Registering games...");
-        DiscordBotAPI.registerGame(new NumberGame());
-        DiscordBotAPI.registerGame(new TicTacToeGame());
-        DiscordBotAPI.registerGame(new RPSGame());
-        DiscordBotAPI.registerGame(new ConnectFourGame());
+        DiscordBotAPI.registerGames(
+                new NumberGame(),
+                new TicTacToeGame(),
+                new RPSGame(),
+                new ConnectFourGame()
+        );
 
         LOGGER.info("Registering listeners...");
-        client.addEventListener(new CommandListener(this));
-        client.addEventListener(new GameListener(this));
-        client.addEventListener(new MuteListener(this));
+        client.addEventListener(
+                new CommandListener(this),
+                new GameListener(this),
+                new MuteListener(this)
+        );
+
+        LOGGER.info("Initializing webhooks...");
+        Webhook.initBotHooks();
+        LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getAccountManager().setGame("$help - v1.1");
+        client.getPresence().setGame(Game.of("$help - v1.2.2"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
@@ -105,14 +125,16 @@ public class DiscordBot {
     public void stop() {
         DiscordBotAPI.logout();
         client = null;
+
+        System.exit(0);
     }
 
     public JDA getClient() { return client; }
-    public SelfInfo getSelf() { return client.getSelfInfo(); }
     public User getOwner() { return client.getUserById("87941393766420480"); }
     public LocalDateTime getLaunchTime() { return launchTime; }
 
     public Config getConfig() { return config; }
+    public Gson getGson() { return gson; }
 
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {
@@ -126,7 +148,7 @@ public class DiscordBot {
                 DiscordBotAPI.login(token);
             else
                 LOGGER.error("The 'token' is not set in the config file, can't start.");
-        } catch(LoginException | InterruptedException e) {
+        } catch(LoginException | InterruptedException | RateLimitedException e) {
             LOGGER.error("Error while login: ", e);
         }
     }

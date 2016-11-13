@@ -1,14 +1,15 @@
 package fr.minuskube.bot.discord.commands;
 
-import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.util.Messages;
 import fr.minuskube.bot.discord.util.Quote;
 import fr.minuskube.bot.discord.util.Users;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,53 +30,54 @@ public class FakeQuoteCommand extends Command {
         if(args.length < 1) {
             msg.getChannel().sendMessage(new MessageBuilder()
                     .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                    .appendString("$fakequote <user [#0123]> <message>").build());
+                    .appendString("$fakequote <user [#0123]> <message>").build())
+                    .queue();
             return;
         }
 
-        if(!(msg.getChannel() instanceof TextChannel)) {
+        if(msg.getChannelType() != ChannelType.TEXT) {
             msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("You can't make quotes in private channels.").build());
+                    .appendString("You can't make quotes in private channels.").build())
+                    .queue();
             return;
         }
 
         TextChannel channel = (TextChannel) msg.getChannel();
+        Guild guild = channel.getGuild();
 
-        if(!channel.checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_ATTACH_FILES)) {
-            channel.sendMessage(new MessageBuilder()
-                    .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build());
-            return;
-        }
+        if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+            msg.deleteMessage().queue();
 
-        User user = null;
+        Member member = null;
 
-        List<User> mentions = Messages.getUserMentions(channel.getGuild(), args[0]);
+        List<Member> mentions = Messages.getMemberMentions(guild, args[0]);
 
         if(mentions.size() == 1)
-            user = mentions.get(0);
+            member = mentions.get(0);
 
-        if(user == null) {
+        if(member == null) {
             if(args[0].contains("#"))
-                user = Users.search(channel.getGuild(), args[0].split("#")[0], args[0].split("#")[1]);
+                member = Users.search(guild, args[0].split("#")[0], args[0].split("#")[1]);
             else
-                user = Users.search(channel.getGuild(), args[0]);
+                member = Users.search(guild, args[0]);
         }
 
-        if(user != null) {
+        if(member != null) {
             String message = "";
 
             for(int i = 1; i < args.length; i++)
                 message += args[i] + " ";
 
-            Quote quote = new Quote(channel, user, message, new Date());
-            quote.sendImage(msg.getAuthor());
+            Quote quote = new Quote(channel, member, message, new Date());
+            quote.send();
 
-            if(channel.checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_MANAGE))
-                msg.deleteMessage();
+            if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+                msg.deleteMessage().queue();
         }
         else {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("User not found!").build());
+            channel.sendMessage(new MessageBuilder()
+                    .appendString("User not found!").build())
+                    .queue();
         }
     }
 

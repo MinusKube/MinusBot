@@ -1,9 +1,9 @@
 package fr.minuskube.bot.discord.util;
 
-import net.dv8tion.jda.entities.Channel;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.Role;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +12,18 @@ import java.util.regex.Pattern;
 
 public class Messages {
 
-    public static List<User> getUserMentions(Guild guild, String msg) {
+    public static List<Member> getMemberMentions(Guild guild, String msg) {
         Pattern pattern = Pattern.compile("<(@|@!)(\\d+)>");
         Matcher matcher = pattern.matcher(msg);
 
-        List<User> result = new ArrayList<>();
+        List<Member> result = new ArrayList<>();
 
         while(matcher.find()) {
             String id = matcher.group(2);
-            User user = guild.getUserById(id);
+            Member member = guild.getMemberById(id);
 
-            if(user != null)
-                result.add(user);
+            if(member != null)
+                result.add(member);
         }
 
         return result;
@@ -40,11 +40,10 @@ public class Messages {
             String id = matcher.group(2);
 
             if(!channelMention) {
-                User user = guild.getUserById(id);
+                Member member = guild.getMemberById(id);
 
-                if(user != null) {
-                    String name = guild.getEffectiveNameForUser(user);
-                    matcher.appendReplacement(result, "@" + name);
+                if(member != null) {
+                    matcher.appendReplacement(result, "@" + member.getEffectiveName());
 
                     continue;
                 }

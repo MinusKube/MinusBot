@@ -1,13 +1,14 @@
 package fr.minuskube.bot.discord.games;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.util.StreamUtils;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class RPSGame extends Game {
         try {
             File tempFile = StreamUtils.tempFileFromInputStream(DiscordBot.class.getResourceAsStream("/imgs/rps.png"),
                     "game-rps", ".png");
-            channel.sendFile(tempFile, new MessageBuilder().appendString("Choose one!").build());
+            channel.sendFile(tempFile, new MessageBuilder().appendString("Choose one!").build()).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send image:", e);
         }
@@ -66,7 +67,11 @@ public class RPSGame extends Game {
 
     @Override
     public void receiveMsg(Message msg) {
-        Player p = Player.getPlayers(msg.getAuthor()).get(0);
+        TextChannel channel = (TextChannel) msg.getChannel();
+        Guild guild = channel.getGuild();
+        Member author = guild.getMember(msg.getAuthor());
+
+        Player p = Player.getPlayers(author).get(0);
         RPSGameData data = ((RPSGameData) datas.get(p));
 
         byte choice;
@@ -78,11 +83,11 @@ public class RPSGame extends Game {
         else if(msg.getContent().equalsIgnoreCase("scissors") || msg.getContent().equalsIgnoreCase("scissor"))
             choice = 2;
         else {
-            Message msg_ = msg.getChannel().sendMessage(new MessageBuilder()
+            channel.sendMessage(new MessageBuilder()
                     .appendString("Please, type `Rock`, `Paper` or `Scissors`...", MessageBuilder.Formatting.ITALICS)
-                    .build());
-
-            Executors.newScheduledThreadPool(1).schedule(msg_::deleteMessage, 5, TimeUnit.SECONDS);
+                    .build())
+                    .queue(msg_ -> Executors.newScheduledThreadPool(1)
+                            .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
             return;
         }
 
@@ -100,17 +105,17 @@ public class RPSGame extends Game {
         else if(winner == 1)
             data.addAiPts(1);
 
-        if(((TextChannel) msg.getChannel()).checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_MANAGE))
-            msg.deleteMessage();
+        if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+            msg.deleteMessage().queue();
 
-        sendImage(p, (TextChannel) msg.getChannel(), data, winner);
+        sendImage(p, channel, data, winner);
     }
 
     private void sendImage(Player player, TextChannel channel, RPSGameData data, byte winner) {
         if(data.getLastMsg() != null)
-            data.getLastMsg().deleteMessage();
+            data.getLastMsg().deleteMessage().queue();
 
-        User user = player.getUser();
+        Member member = player.getMember();
 
         BufferedImage image = new BufferedImage(350, 150, BufferedImage.TYPE_INT_ARGB);
 
@@ -170,13 +175,13 @@ public class RPSGame extends Game {
         }
 
         try {
-            File tempFile = StreamUtils.tempFileFromImage(image, "game-rps-" + user.getUsername().toLowerCase(),
+            File tempFile = StreamUtils.tempFileFromImage(image, "game-rps-" + member.getUser().getName().toLowerCase(),
                     ".png");
 
-            Message msg = channel.sendFile(tempFile, null);
+            Message msg = channel.sendFile(tempFile, null).block();
             data.setLastMsg(msg);
-        } catch(IOException e) {
-            LOGGER.error("Couldn't send image:", e);
+        } catch(IOException | RateLimitedException e) {
+            LOGGER.error("Couldn't send image: ", e);
         }
     }
 

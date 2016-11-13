@@ -1,8 +1,8 @@
 package fr.minuskube.bot.discord.listeners;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import net.dv8tion.jda.events.ReadyEvent;
-import net.dv8tion.jda.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class ReadyListener extends ListenerAdapter {
 

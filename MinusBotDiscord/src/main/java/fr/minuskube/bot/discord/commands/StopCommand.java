@@ -2,8 +2,8 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Message;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
 
 public class StopCommand extends Command {
 
@@ -18,13 +18,15 @@ public class StopCommand extends Command {
         if(msg.getAuthor() != DiscordBot.instance().getOwner()) {
             msg.getChannel().sendMessage(new MessageBuilder()
                     .appendString("You don't have the permission to execute this command...",
-                            MessageBuilder.Formatting.ITALICS).build());
+                            MessageBuilder.Formatting.ITALICS).build())
+                    .queue();
             return;
         }
 
         msg.getChannel().sendMessage(new MessageBuilder()
                 .appendString("Goodbye!", MessageBuilder.Formatting.BOLD,
-                        MessageBuilder.Formatting.ITALICS).build());
+                        MessageBuilder.Formatting.ITALICS).build())
+                .queue();
 
         DiscordBotAPI.stop();
     }

@@ -1,11 +1,13 @@
 package fr.minuskube.bot.discord.util;
 
-import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.MessageChannel;
-import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,17 +117,21 @@ public class DrawSession {
         g2d.setColor(this.g2d.getColor());
         g2d.fillRect(0, 0, 50, 50);
 
-        if(channel instanceof TextChannel
-                && !((TextChannel) channel).checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_ATTACH_FILES)) {
+        if(channel.getType() == ChannelType.TEXT) {
+            TextChannel tc = (TextChannel) channel;
+            Guild guild = tc.getGuild();
 
-            channel.sendMessage(new MessageBuilder()
-                    .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build());
-            return;
+            if(!guild.getSelfMember().hasPermission(tc, Permission.MESSAGE_ATTACH_FILES)) {
+                channel.sendMessage(new MessageBuilder()
+                        .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build())
+                        .queue();
+                return;
+            }
         }
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "draw-color-" + channel.getId(), ".png");
-            channel.sendFile(tempFile, new MessageBuilder().appendString("New color set!").build());
+            channel.sendFile(tempFile, new MessageBuilder().appendString("New color set!").build()).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send color image:", e);
         }
@@ -169,20 +175,24 @@ public class DrawSession {
 
     public void send() {
         if(lastMsg != null)
-            lastMsg.deleteMessage();
+            lastMsg.deleteMessage().queue();
 
-        if(channel instanceof TextChannel
-                && !((TextChannel) channel).checkPermission(DiscordBotAPI.self(), Permission.MESSAGE_ATTACH_FILES)) {
+        if(channel.getType() == ChannelType.TEXT) {
+            TextChannel tc = (TextChannel) channel;
+            Guild guild = tc.getGuild();
 
-            channel.sendMessage(new MessageBuilder()
-                    .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build());
-            return;
+            if(!guild.getSelfMember().hasPermission(tc, Permission.MESSAGE_ATTACH_FILES)) {
+                channel.sendMessage(new MessageBuilder()
+                        .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build())
+                        .queue();
+                return;
+            }
         }
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "draw-session-" + channel.getId(), ".png");
-            this.lastMsg = channel.sendFile(tempFile, null);
-        } catch(IOException e) {
+            this.lastMsg = channel.sendFile(tempFile, null).block();
+        } catch(IOException | RateLimitedException e) {
             LOGGER.error("Couldn't send image:", e);
         }
     }

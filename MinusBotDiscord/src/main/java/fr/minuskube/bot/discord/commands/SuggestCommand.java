@@ -1,9 +1,9 @@
 package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import net.dv8tion.jda.MessageBuilder;
-import net.dv8tion.jda.entities.Message;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ public class SuggestCommand extends Command {
     private Map<User, Integer> suggestionsAmount = new HashMap<User, Integer>();
 
     public SuggestCommand() {
-        super("suggest", "Suggests a thing I can add to the bot.");
+        super("suggest", "Suggests a thing my developer can add to me.");
     }
 
     @Override
@@ -30,13 +30,15 @@ public class SuggestCommand extends Command {
         if(args.length < 1) {
             msg.getChannel().sendMessage(new MessageBuilder()
                     .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                    .appendString("$suggest <message>").build());
+                    .appendString("$suggest <message>").build())
+                    .queue();
             return;
         }
 
         if(suggestionsAmount.getOrDefault(msg.getAuthor(), 0) >= 5) {
             msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("You've already sent too many suggestions today, try again later...").build());
+                    .appendString("You've already sent too many suggestions today, try again later...").build())
+                    .queue();
             return;
         }
 
@@ -45,10 +47,10 @@ public class SuggestCommand extends Command {
         for(String arg : args)
             sb.append(" ").append(arg.replace("\n", " ").replace("\r", " "));
 
-        LOGGER.info("{} made a suggestion: {}", msg.getAuthor().getUsername(), sb.toString());
+        LOGGER.info("{} made a suggestion: {}", msg.getAuthor().getName(), sb.toString());
 
         try {
-            String line = msg.getAuthor().getUsername()
+            String line = msg.getAuthor().getName()
                     + "#" + msg.getAuthor().getDiscriminator() + " >" + sb.toString();
             Path path = Paths.get("suggestions.txt");
 
@@ -66,14 +68,16 @@ public class SuggestCommand extends Command {
 
         msg.getChannel().sendMessage(new MessageBuilder()
                 .appendString("Thank you for your suggestion ").appendMention(msg.getAuthor())
-                .appendString("!").build());
+                .appendString("!").build())
+                .queue();
 
         DiscordBot.instance().getOwner().getPrivateChannel().sendMessage(new MessageBuilder()
                 .appendMention(msg.getAuthor())
                 .appendString(" made a suggestion for me!", MessageBuilder.Formatting.BOLD)
                 .appendString("\n")
                 .appendString("Content: ", MessageBuilder.Formatting.BOLD)
-                .appendString(sb.toString()).build());
+                .appendString(sb.toString()).build())
+                .queue();
     }
 
 }

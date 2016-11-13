@@ -7,7 +7,7 @@
     <groupId>fr.minuskube.bot</groupId>
     <artifactId>MinusBotDiscord</artifactId>
     <packaging>jar</packaging>
-    <version>1.1</version>
+    <version>1.2.2</version>
 
     <properties>
         <jdk.version>1.8</jdk.version>
@@ -60,7 +60,7 @@
     </build>
 
     <repositories>
-        <repository> <!-- This repo fixes issues with transitive dependencies -->
+        <repository>
             <id>jcenter</id>
             <url>http://jcenter.bintray.com</url>
         </repository>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>2.2.1_353</version>
+            <version>3.0.BETA_77</version>
         </dependency>
         <dependency>
             <groupId>at.mukprojects</groupId>
@@ -85,6 +85,21 @@
             <groupId>net.sf.jtidy</groupId>
             <artifactId>jtidy</artifactId>
             <version>r938</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20150729</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
         </dependency>
     </dependencies>
 
