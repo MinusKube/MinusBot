@@ -28,7 +28,7 @@ public class CommandListener extends Listener {
 
         if(msg.getContent() == null)
             return;
-        if(!msg.getContent().startsWith("+"))
+        if(!msg.getContent().startsWith("$"))
             return;
 
         if(msg.getChannelType() == ChannelType.TEXT) {
