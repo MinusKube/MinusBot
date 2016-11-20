@@ -32,7 +32,7 @@ public class Config {
                 }
             }
         } catch(IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Can't load config: ", e);
         }
     }
 
@@ -45,7 +45,7 @@ public class Config {
             writer.newLine();
             writer.write("prefix: $");
         } catch(IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Can't save default config: ", e);
         }
     }
 
