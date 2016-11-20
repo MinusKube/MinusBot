@@ -2,13 +2,14 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 
 public class StopCommand extends Command {
 
     public StopCommand() {
-        super("stop", "Shutdowns the bot.");
+        super("stop", "Shutdowns the bot.", "");
 
         this.hidden = true;
     }
@@ -16,10 +17,7 @@ public class StopCommand extends Command {
     @Override
     public void execute(Message msg, String[] args) {
         if(msg.getAuthor() != DiscordBot.instance().getOwner()) {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("You don't have the permission to execute this command...",
-                            MessageBuilder.Formatting.ITALICS).build())
-                    .queue();
+            MessageUtils.error(msg.getChannel(), "*You don't have the permission to execute this command...*").queue();
             return;
         }
 
@@ -31,4 +29,6 @@ public class StopCommand extends Command {
         DiscordBotAPI.stop();
     }
 
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
 }

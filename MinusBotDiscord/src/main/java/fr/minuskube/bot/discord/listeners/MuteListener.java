@@ -3,6 +3,7 @@ package fr.minuskube.bot.discord.listeners;
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.commands.MuteCommand;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -26,7 +27,9 @@ public class MuteListener extends Listener {
         if(msg.getChannelType() != ChannelType.TEXT)
             return;
 
-        if(MuteCommand.isMuted(msg.getAuthor(), ((TextChannel) msg.getChannel()).getGuild()))
+        Guild guild = ((TextChannel) msg.getChannel()).getGuild();
+
+        if(MuteCommand.isMuted(guild.getMember(msg.getAuthor()), guild))
             msg.deleteMessage().queue();
     }
 

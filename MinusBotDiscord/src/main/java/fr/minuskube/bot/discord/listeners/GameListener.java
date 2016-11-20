@@ -25,7 +25,7 @@ public class GameListener extends Listener {
 
         if(msg.getChannelType() != ChannelType.TEXT)
             return;
-        if(msg.getContent().startsWith("$"))
+        if(msg.getContent().startsWith(DiscordBotAPI.prefix()))
             return;
 
         TextChannel channel = (TextChannel) msg.getChannel();

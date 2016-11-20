@@ -3,6 +3,7 @@ package fr.minuskube.bot.discord.commands;
 import at.mukprojects.giphy4j.Giphy;
 import at.mukprojects.giphy4j.entity.search.SearchRandom;
 import at.mukprojects.giphy4j.exception.GiphyException;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -16,7 +17,7 @@ public class GifCommand extends Command {
     private static final String API_KEY = "dc6zaTOxFJmzC";
 
     public GifCommand() {
-        super("gif", "Prints a random gif!");
+        super("gif", "Prints a random gif!", "");
     }
 
     @Override
@@ -33,11 +34,7 @@ public class GifCommand extends Command {
                     .appendString(giphySearch.getData().getImageOriginalUrl()).build())
                     .queue();
         } catch (GiphyException e) {
-            channel.sendMessage(new MessageBuilder()
-                    .appendMention(msg.getAuthor())
-                    .appendString(args.length > 0 ? " (" + args[0] + ")\n" : "\n")
-                    .appendString("No gif found.").build())
-                    .queue();
+            MessageUtils.error(channel, "No gif found.").queue();
         }
 
         if(channel.getType() == ChannelType.TEXT) {
@@ -48,5 +45,8 @@ public class GifCommand extends Command {
                 msg.deleteMessage().queue();
         }
     }
+
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
 
 }

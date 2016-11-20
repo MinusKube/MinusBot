@@ -2,7 +2,6 @@ package fr.minuskube.bot.discord.util;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,16 +26,7 @@ public class Poll {
     }
 
     public void send() {
-        Webhook webhook = Webhook.getBotHook(channel);
-
-        if(webhook == null) {
-            channel.sendMessage("Error while creating quote!");
-            return;
-        }
-
-        webhook.execute(new JSONObject(new HashMap<String, Object>() {{
-
-        }}));
+        channel.sendMessage("HI BOYZZZZ");
     }
 
     public TextChannel getChannel() { return channel; }

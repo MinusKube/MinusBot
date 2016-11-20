@@ -1,11 +1,9 @@
 package fr.minuskube.bot.discord.commands;
 
-import fr.minuskube.bot.discord.util.Messages;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.Quote;
 import fr.minuskube.bot.discord.util.Users;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -13,6 +11,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -22,26 +21,14 @@ public class FakeQuoteCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(FakeQuoteCommand.class);
 
     public FakeQuoteCommand() {
-        super("fakequote", Collections.singletonList("fq"), "Create a fake quote with a given player and message.");
+        super("fakequote", Collections.singletonList("fq"), "Create a fake quote with a given player and message.",
+                "<user [#0123]> <message>");
+
+        this.guildOnly = true;
     }
 
     @Override
     public void execute(Message msg, String[] args) {
-        if(args.length < 1) {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                    .appendString("$fakequote <user [#0123]> <message>").build())
-                    .queue();
-            return;
-        }
-
-        if(msg.getChannelType() != ChannelType.TEXT) {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("You can't make quotes in private channels.").build())
-                    .queue();
-            return;
-        }
-
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
 
@@ -50,7 +37,7 @@ public class FakeQuoteCommand extends Command {
 
         Member member = null;
 
-        List<Member> mentions = Messages.getMemberMentions(guild, args[0]);
+        List<Member> mentions = MessageUtils.getMemberMentions(guild, args[0]);
 
         if(mentions.size() == 1)
             member = mentions.get(0);
@@ -63,22 +50,19 @@ public class FakeQuoteCommand extends Command {
         }
 
         if(member != null) {
-            String message = "";
+            String[] queryArgs = Arrays.copyOfRange(args, 1, args.length);
+            String query = String.join(" ", (CharSequence[]) queryArgs);
 
-            for(int i = 1; i < args.length; i++)
-                message += args[i] + " ";
-
-            Quote quote = new Quote(channel, member, message, new Date());
+            Quote quote = new Quote(channel, member, query, new Date());
             quote.send();
-
-            if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
         }
         else {
-            channel.sendMessage(new MessageBuilder()
-                    .appendString("User not found!").build())
-                    .queue();
+            MessageUtils.error(channel, "User not found!").queue();
         }
     }
 
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) {
+        return args.length >= 1;
+    }
 }

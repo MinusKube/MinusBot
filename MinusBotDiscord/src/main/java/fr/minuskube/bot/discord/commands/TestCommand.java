@@ -9,7 +9,7 @@ public class TestCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCommand.class);
 
     public TestCommand() {
-        super("test", "Command for debugging.");
+        super("test", "Command for debugging.", "");
 
         this.hidden = true;
     }
@@ -17,4 +17,6 @@ public class TestCommand extends Command {
     @Override
     public void execute(Message msg, String[] args) {}
 
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
 }

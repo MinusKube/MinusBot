@@ -3,6 +3,8 @@ package fr.minuskube.bot.discord.listeners;
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.commands.Command;
+import fr.minuskube.bot.discord.commands.MuteCommand;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -28,12 +30,15 @@ public class CommandListener extends Listener {
 
         if(msg.getContent() == null)
             return;
-        if(!msg.getContent().startsWith("$"))
+        if(!msg.getContent().startsWith(DiscordBotAPI.prefix()))
             return;
 
         if(msg.getChannelType() == ChannelType.TEXT) {
             TextChannel channel = (TextChannel) msg.getChannel();
             Guild guild = channel.getGuild();
+
+            if(MuteCommand.isMuted(guild.getMember(msg.getAuthor()), guild))
+                return;
 
             if(!guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) {
                 Message message = new MessageBuilder()
@@ -46,13 +51,13 @@ public class CommandListener extends Listener {
             }
         }
 
-        String content = msg.getRawContent().substring(1);
+        String content = msg.getRawContent().substring(DiscordBotAPI.prefix().length());
 
         if(msg.getChannelType() == ChannelType.TEXT)
-            LOGGER.info("{} issued command (Guild {}): ${}", msg.getAuthor().getName(),
+            LOGGER.info("{} issued command (Guild {}): " + DiscordBotAPI.prefix() + "{}", msg.getAuthor().getName(),
                     ((TextChannel) msg.getChannel()).getGuild().getName(), content);
         else
-            LOGGER.info("{} issued command: ${}", msg.getAuthor().getName(), content);
+            LOGGER.info("{} issued command: " + DiscordBotAPI.prefix() + "{}", msg.getAuthor().getName(), content);
 
         new Thread(() -> {
             String cmdName = content.split(" ")[0];
@@ -60,10 +65,20 @@ public class CommandListener extends Listener {
 
             Command cmd = DiscordBotAPI.getCommand(cmdName);
 
-            if(cmd != null)
-                cmd.execute(msg, args);
+            if(cmd != null) {
+                if(msg.getChannelType() != ChannelType.TEXT && cmd.isGuildOnly()) {
+                    MessageUtils.error(msg.getChannel(), DiscordBot.PRIVATE_NOT_ALLOWED).queue();
+                    return;
+                }
+
+                if(cmd.checkSyntax(msg, args))
+                    cmd.execute(msg, args);
+                else
+                    MessageUtils.error(msg.getChannel(), "Wrong Syntax",
+                            DiscordBotAPI.prefix() + cmdName + " " + cmd.getSyntax()).queue();
+            }
             else
-                msg.getChannel().sendMessage(DiscordBot.UNKNOWN_COMMAND).queue();
+                MessageUtils.error(msg.getChannel(), DiscordBot.instance().unknownCommand()).queue();
         }).start();
     }
 

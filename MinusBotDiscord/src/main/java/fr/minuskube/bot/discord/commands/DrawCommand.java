@@ -1,6 +1,8 @@
 package fr.minuskube.bot.discord.commands;
 
+import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.util.DrawSession;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -16,28 +18,13 @@ public class DrawCommand extends Command {
 
     private Map<MessageChannel, DrawSession> sessions = new HashMap<>();
 
-    private static final String AVAILABLE_COMMANDS_MSG = "Available commands:\n" +
-            "```" +
-            "$draw color <red> <green> <blue> [alpha]\n" +
-            "(SOON) $draw line <x1> <y1> <x2> <x2> [line-width]\n" +
-            "$draw rect <x> <y> <width> <height>\n" +
-            "$draw hrect <x> <y> <width> <height> [line-width]\n" +
-            "$draw circle <x> <y> <width> <height>\n" +
-            "$draw hcircle <x> <y> <width> <height> [line-width]\n" +
-            "(SOON) $draw image <x> <y> <width> <height> <url>\n" +
-            "$draw text <size> <x> <y> <text>\n" +
-            "$draw show\n" +
-            "$draw cancel\n" +
-            "$draw reset\n" +
-            "$draw stop" +
-            "```";
-
     public DrawCommand() {
-        super("draw", Collections.emptyList(), "Starts a draw session on the channel.");
+        super("draw", Collections.emptyList(), "Starts a draw session on the channel.", "");
     }
 
     @Override
     public void execute(Message msg, String[] args) {
+        final String prefix = DiscordBotAPI.prefix();
         MessageChannel channel = msg.getChannel();
 
         if(msg.getChannelType() == ChannelType.TEXT) {
@@ -51,7 +38,7 @@ public class DrawCommand extends Command {
             if(args.length != 2) {
                 channel.sendMessage(new MessageBuilder()
                         .appendString("There is no draw session on this channel.\n", MessageBuilder.Formatting.BOLD)
-                        .appendString("Use $draw <width> <height> to create one.").build())
+                        .appendString("Use " + prefix + "draw <width> <height> to create one.").build())
                         .queue();
                 return;
             }
@@ -60,10 +47,10 @@ public class DrawCommand extends Command {
                 int width = Integer.parseInt(args[0]);
                 int height = Integer.parseInt(args[1]);
 
-                if(width < 0 || width > 600 || height < 0 || height > 600) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("The width and the height must be between 0 and 600.").build())
-                            .queue();
+                if(width < 0 || width > 600
+                        || height < 0 || height > 600) {
+
+                    MessageUtils.error(channel, "The width and the height must be between 0 and 600.").queue();
                     return;
                 }
 
@@ -72,13 +59,10 @@ public class DrawCommand extends Command {
 
                 channel.sendMessage(new MessageBuilder()
                         .appendString("Draw session created!", MessageBuilder.Formatting.BOLD)
-                        .appendString(AVAILABLE_COMMANDS_MSG).build())
+                        .appendString(availableCommands()).build())
                         .queue();
             } catch(NumberFormatException e) {
-                channel.sendMessage(new MessageBuilder()
-                        .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                        .appendString("$draw <width> <height>").build())
-                        .queue();
+                wrongSyntax(channel, "<width> <height>");
             }
 
             return;
@@ -88,17 +72,18 @@ public class DrawCommand extends Command {
 
         if(args.length == 0) {
             channel.sendMessage(new MessageBuilder()
-                    .appendString(AVAILABLE_COMMANDS_MSG).build()).queue();
+                    .appendString(availableCommands()).build()).queue();
             return;
         }
 
+        String syntax;
+
         switch(args[0].toLowerCase()) {
             case "color": {
+                syntax = "color <red> <green> <blue> [alpha]";
+
                 if(args.length < 4 || args.length > 5) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw color <red> <green> <blue> [alpha]").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                     return;
                 }
 
@@ -114,21 +99,17 @@ public class DrawCommand extends Command {
                     session.color(red, green, blue, alpha);
                     session.sendColor();
                 } catch(NumberFormatException e) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw color <red> <green> <blue> [alpha]")
-                            .build());
+                    wrongSyntax(channel, syntax);
                 }
 
                 break;
             }
 
             case "rect": {
+                syntax = "rect <x> <y> <width> <height>";
+
                 if(args.length != 5) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw rect <x> <y> <width> <height>").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                     return;
                 }
 
@@ -141,21 +122,17 @@ public class DrawCommand extends Command {
                     session.fillRect(x, y, width, height);
                     session.send();
                 } catch(NumberFormatException e) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw rect <x> <y> <width> <height>").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                 }
 
                 break;
             }
 
             case "hrect": {
+                syntax = "hrect <x> <y> <width> <height> [line-width]";
+
                 if(args.length < 5 || args.length > 6) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw hrect <x> <y> <width> <height> [line-width]").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                     return;
                 }
 
@@ -174,21 +151,17 @@ public class DrawCommand extends Command {
 
                     session.send();
                 } catch(NumberFormatException e) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw hrect <x> <y> <width> <height> [line-width]").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                 }
 
                 break;
             }
 
             case "circle": {
+                syntax = "circle <x> <y> <width> <height>";
+
                 if(args.length != 5) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw circle <x> <y> <width> <height>").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                     return;
                 }
 
@@ -201,21 +174,17 @@ public class DrawCommand extends Command {
                     session.fillCircle(x, y, width, height);
                     session.send();
                 } catch(NumberFormatException e) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw circle <x> <y> <width> <height>").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                 }
 
                 break;
             }
 
             case "hcircle": {
+                syntax = "hcircle <x> <y> <width> <height> [line-width]";
+
                 if(args.length < 5 || args.length > 6) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw hcircle <x> <y> <width> <height> [line-width]").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                     return;
                 }
 
@@ -234,21 +203,17 @@ public class DrawCommand extends Command {
 
                     session.send();
                 } catch(NumberFormatException e) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw hcircle <x> <y> <width> <height> [line-width]").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                 }
 
                 break;
             }
 
             case "text": {
+                syntax = "text <size> <x> <y> <text>";
+
                 if(args.length < 5) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw text <size> <x> <y> <text>").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                     return;
                 }
 
@@ -269,10 +234,7 @@ public class DrawCommand extends Command {
                     session.drawString(size, x, y, sb.toString());
                     session.send();
                 } catch(NumberFormatException e) {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                            .appendString("$draw text <size> <x> <y> <text>").build())
-                            .queue();
+                    wrongSyntax(channel, syntax);
                 }
 
                 break;
@@ -287,9 +249,7 @@ public class DrawCommand extends Command {
                 if(session.cancel())
                     session.send();
                 else {
-                    channel.sendMessage(new MessageBuilder()
-                            .appendString("Sorry, I can't cancel this...").build())
-                            .queue();
+                    MessageUtils.error(channel, "Sorry, I can't cancel the last change...").queue();
                     return;
                 }
 
@@ -300,7 +260,7 @@ public class DrawCommand extends Command {
                 session.reset();
 
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("The session has been reset...").build())
+                        .appendString("The session has been reset.").build())
                         .queue();
                 break;
             }
@@ -315,12 +275,39 @@ public class DrawCommand extends Command {
             }
 
             default: {
-                channel.sendMessage(new MessageBuilder()
-                        .appendString("Unknown command, type $draw to see the available commands.").build())
+                MessageUtils.error(channel, "Unknown command, type " + prefix + "draw to see the available commands.")
                         .queue();
                 break;
             }
         }
+    }
+
+    private String availableCommands() {
+        String p = DiscordBotAPI.prefix();
+
+        return "Available commands:\n" +
+                "```" +
+                p + "draw color <red> <green> <blue> [alpha]\n" +
+                "(SOON) " + p + "draw line <x1> <y1> <x2> <x2> [line-width]\n" +
+                p + "draw rect <x> <y> <width> <height>\n" +
+                p + "draw hrect <x> <y> <width> <height> [line-width]\n" +
+                p + "draw circle <x> <y> <width> <height>\n" +
+                p + "draw hcircle <x> <y> <width> <height> [line-width]\n" +
+                "(SOON) " + p + "draw image <x> <y> <width> <height> <url>\n" +
+                p + "draw text <size> <x> <y> <text>\n" +
+                p + "draw show\n" +
+                p + "draw cancel\n" +
+                p + "draw reset\n" +
+                p + "draw stop" +
+                "```";
+    }
+
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
+
+    private void wrongSyntax(MessageChannel channel, String syntax) {
+        MessageUtils.error(channel, "Wrong Syntax",
+                DiscordBotAPI.prefix() + "draw " + syntax).queue();
     }
 
 }

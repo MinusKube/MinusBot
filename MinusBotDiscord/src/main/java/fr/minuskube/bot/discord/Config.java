@@ -15,6 +15,7 @@ public class Config {
     private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
     private String token;
+    private String prefix;
 
     public void load(File file) {
         try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -27,6 +28,7 @@ public class Config {
                 switch(key.toLowerCase()) {
                     case "token": this.token = value;
                         break;
+                    case "prefix": this.prefix = value;
                 }
             }
         } catch(IOException e) {
@@ -41,12 +43,13 @@ public class Config {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("token: PUT_YOUR_TOKEN_HERE");
             writer.newLine();
+            writer.write("prefix: $");
         } catch(IOException e) {
             e.printStackTrace();
         }
     }
 
     public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
+    public String getPrefix() { return prefix; }
 
 }

@@ -1,7 +1,10 @@
 package fr.minuskube.bot.discord;
 
 import com.google.gson.Gson;
+import fr.minuskube.bot.discord.comics.CommitStrip;
 import fr.minuskube.bot.discord.commands.AddCommand;
+import fr.minuskube.bot.discord.commands.ClearCommand;
+import fr.minuskube.bot.discord.commands.ComicsCommand;
 import fr.minuskube.bot.discord.commands.DrawCommand;
 import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
 import fr.minuskube.bot.discord.commands.GamesCommand;
@@ -25,9 +28,7 @@ import fr.minuskube.bot.discord.listeners.MuteListener;
 import fr.minuskube.bot.discord.trello.TCPServer;
 import fr.minuskube.bot.discord.util.Webhook;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
@@ -41,11 +42,7 @@ import java.time.LocalDateTime;
 public class DiscordBot {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordBot.class);
-
-    public static final Message UNKNOWN_COMMAND = new MessageBuilder()
-            .appendString("Sorry, this command is ")
-            .appendString("unknown", MessageBuilder.Formatting.BOLD)
-            .appendString(". Use $help to see available commands.").build();
+    public static final String PRIVATE_NOT_ALLOWED = "You can't do this in a private channel.";
 
     private static DiscordBot instance;
 
@@ -54,6 +51,7 @@ public class DiscordBot {
 
     private Config config = new Config();
     private Gson gson = new Gson();
+    private CommitStrip commitStrip;
 
     private void loadConfig() {
         LOGGER.info("Loading config...");
@@ -65,7 +63,7 @@ public class DiscordBot {
             try {
                 config.saveDefault(configFile);
             } catch(IOException e) {
-                LOGGER.error("Error while creating the default file:", e);
+                LOGGER.error("Error while creating the default file: ", e);
             }
         }
         else
@@ -77,6 +75,11 @@ public class DiscordBot {
 
         LOGGER.info("Starting server...");
         new TCPServer().start();
+
+        LOGGER.info("Starting CommitStrip timer...");
+        commitStrip = new CommitStrip();
+        commitStrip.load();
+        commitStrip.start();
 
         LOGGER.info("Registering commands...");
         DiscordBotAPI.registerCommands(
@@ -93,7 +96,9 @@ public class DiscordBot {
                 new SexCommand(),
                 new DrawCommand(),
                 new MuteCommand(),
-                new PollCommand()
+                new PollCommand(),
+                new ClearCommand(),
+                new ComicsCommand()
         );
 
         LOGGER.info("Registering games...");
@@ -116,13 +121,15 @@ public class DiscordBot {
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of("$help - v1.3.0"));
+        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.4.0"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
     }
 
     public void stop() {
+        commitStrip.cancel();
+
         DiscordBotAPI.logout();
         client = null;
 
@@ -135,6 +142,12 @@ public class DiscordBot {
 
     public Config getConfig() { return config; }
     public Gson getGson() { return gson; }
+    public CommitStrip getCommitStrip() { return commitStrip; }
+
+    public String unknownCommand() {
+        return String.format("Sorry, this command is **unknown**. " +
+                "Use %shelp to see available commands.", DiscordBotAPI.prefix());
+    }
 
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {

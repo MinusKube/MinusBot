@@ -1,6 +1,6 @@
 package fr.minuskube.bot.discord.commands;
 
-import net.dv8tion.jda.core.MessageBuilder;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -24,7 +24,7 @@ public class SexCommand extends Command {
     private static final Logger LOGGER = LoggerFactory.getLogger(SexCommand.class);
 
     public SexCommand() {
-        super("sex", "Sends a random sex image/gif.");
+        super("sex", "Sends a random sex image/gif.", "");
 
         this.hidden = true;
     }
@@ -40,9 +40,7 @@ public class SexCommand extends Command {
             if(!cName.contains("sex") && !cName.contains("18")
                     && !cName.contains("censor") && !cName.contains("censure")) {
 
-                channel.sendMessage(new MessageBuilder()
-                        .appendString("The pr0n is not allowed in this channel!").build())
-                        .queue();
+                MessageUtils.error(channel, "The pr0n is not allowed in this channel!").queue();
                 return;
             }
         }
@@ -102,9 +100,7 @@ public class SexCommand extends Command {
                         && tries < 5);
 
                 if(!item.hasAttributes() || item.getAttributes().getNamedItem("data-src") == null) {
-                    msg.getChannel().sendMessage(new MessageBuilder()
-                            .appendString("No image found to satisfy your desire.").build())
-                            .queue();
+                    MessageUtils.error(msg.getChannel(), "No image found to satisfy your desire.").queue();
                     return;
                 }
 
@@ -117,4 +113,6 @@ public class SexCommand extends Command {
         }
     }
 
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
 }

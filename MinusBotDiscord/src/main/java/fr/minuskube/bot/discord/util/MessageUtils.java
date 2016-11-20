@@ -3,14 +3,32 @@ package fr.minuskube.bot.discord.util;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.requests.RestAction;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Messages {
+public class MessageUtils {
+
+    public static RestAction<Message> error(MessageChannel channel, String errorTitle, String errorMsg) {
+        return EmbedMessage.send(channel, null, new JSONObject()
+                .put("color", 13107200)
+                .put("thumbnail", new JSONObject().put("url", "http://minuskube.fr/error_icon.png"))
+                .put("fields", new JSONArray().put(new JSONObject()
+                        .put("name","`" + errorTitle + "`")
+                        .put("value", errorMsg))));
+    }
+
+    public static RestAction<Message> error(MessageChannel channel, String errorMsg) {
+        return error(channel, "ERROR!", errorMsg);
+    }
 
     public static List<Member> getMemberMentions(Guild guild, String msg) {
         Pattern pattern = Pattern.compile("<(@|@!)(\\d+)>");

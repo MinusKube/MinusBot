@@ -1,6 +1,7 @@
 package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
@@ -22,22 +23,13 @@ public class SuggestCommand extends Command {
     private Map<User, Integer> suggestionsAmount = new HashMap<User, Integer>();
 
     public SuggestCommand() {
-        super("suggest", "Suggests a thing my developer can add to me.");
+        super("suggest", "Suggests a thing my developer can add to me.", "<message>");
     }
 
     @Override
     public void execute(Message msg, String[] args) {
-        if(args.length < 1) {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("Wrong syntax! ", MessageBuilder.Formatting.BOLD)
-                    .appendString("$suggest <message>").build())
-                    .queue();
-            return;
-        }
-
         if(suggestionsAmount.getOrDefault(msg.getAuthor(), 0) >= 5) {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("You've already sent too many suggestions today, try again later...").build())
+            MessageUtils.error(msg.getChannel(), "You've already sent too many suggestions today, try again later...")
                     .queue();
             return;
         }
@@ -78,6 +70,11 @@ public class SuggestCommand extends Command {
                 .appendString("Content: ", MessageBuilder.Formatting.BOLD)
                 .appendString(sb.toString()).build())
                 .queue();
+    }
+
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) {
+        return args.length >= 1;
     }
 
 }

@@ -3,6 +3,7 @@ package fr.minuskube.bot.discord.commands;
 import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.games.Game;
 import fr.minuskube.bot.discord.games.Player;
+import fr.minuskube.bot.discord.util.MessageUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -13,18 +14,14 @@ import java.util.Arrays;
 public class GamesCommand extends Command {
 
     public GamesCommand() {
-        super("games", Arrays.asList("game", "g"), "Play a game with me!");
+        super("games", Arrays.asList("game", "g"), "Play a game with me!",
+                "");
+
+        this.guildOnly = true;
     }
 
     @Override
     public void execute(Message msg, String[] args) {
-        if(!(msg.getChannel() instanceof TextChannel)) {
-            msg.getChannel().sendMessage(new MessageBuilder()
-                    .appendString("You can't start games in private channels.").build())
-                    .queue();
-            return;
-        }
-
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
 
@@ -36,8 +33,8 @@ public class GamesCommand extends Command {
                 builder.appendString("\n  - `" + game.getName() + "` : ")
                         .appendString(game.getDescription(), MessageBuilder.Formatting.ITALICS);
 
-            builder.appendString("\n\nUse `$games <name>` to start a game.")
-                    .appendString("\nUse `$game leave` to leave a game.");
+            builder.appendString("\n\nUse `" + DiscordBotAPI.prefix() + "games <name>` to start a game.")
+                    .appendString("\nUse `" + DiscordBotAPI.prefix() + "game leave` to leave a game.");
 
             channel.sendMessage(builder.build()).queue();
             return;
@@ -47,9 +44,7 @@ public class GamesCommand extends Command {
             Game game = DiscordBotAPI.getGameByUser(guild.getMember(msg.getAuthor()));
 
             if(game == null) {
-                channel.sendMessage(new MessageBuilder()
-                        .appendString("You're not in a game.").build())
-                        .queue();
+                MessageUtils.error(channel, "You're not in a game.").queue();
                 return;
             }
 
@@ -65,22 +60,21 @@ public class GamesCommand extends Command {
         Game curGame = DiscordBotAPI.getGameByUser(guild.getMember(msg.getAuthor()));
 
         if(curGame != null && (!curGame.doesAllowDuplicate() || curGame.isFull())) {
-            channel.sendMessage(new MessageBuilder()
-                    .appendString("You're already in a game. Type \"$game leave\" to leave it.").build())
-                    .queue();
+            MessageUtils.error(channel, "You're already in a game. Type \""
+                    + DiscordBotAPI.prefix() + "game leave\" to leave it.").queue();
             return;
         }
 
         Game game = DiscordBotAPI.getGame(args[0]);
 
         if(game == null) {
-            channel.sendMessage(new MessageBuilder()
-                    .appendString("This game doesn't exist.").build())
-                    .queue();
+            MessageUtils.error(channel, "This game doesn't exist.").queue();
             return;
         }
 
         game.start(new Player(guild.getMember(msg.getAuthor())), channel);
     }
 
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
 }

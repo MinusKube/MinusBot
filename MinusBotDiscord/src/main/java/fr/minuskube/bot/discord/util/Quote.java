@@ -2,7 +2,6 @@ package fr.minuskube.bot.discord.util;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +33,6 @@ public class Quote {
     }
 
     public void send() {
-        Webhook webhook = Webhook.getBotHook(channel);
-
-        if(webhook == null) {
-            channel.sendMessage("Error while creating quote!");
-            return;
-        }
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -50,25 +41,22 @@ public class Quote {
         int rgb =   color != null ? (((color.getRed() & 0xFF) << 16) |
                     ((color.getGreen() & 0xFF) << 8)  |
                     ((color.getBlue() & 0xFF))) : 0;
+        String avatar = author.getUser().getAvatarId() != null  ? author.getUser().getAvatarUrl()
+                                                                : author.getUser().getDefaultAvatarUrl();
 
         JSONObject embed = new JSONObject(new HashMap<String, Object>() {
             {
                 put("color", rgb);
                 put("description", msg);
                 put("timestamp", dateFormat.format(date));
+
+                put("footer", new JSONObject()
+                        .put("text", author.getEffectiveName())
+                        .put("icon_url", avatar));
             }
         });
 
-        boolean sent = webhook.execute(new JSONObject(new HashMap<String, Object>() {
-            {
-                put("username", author.getEffectiveName());
-                put("avatar_url", author.getUser().getAvatarUrl());
-                put("embeds", new JSONArray(Collections.singleton(embed)));
-            }
-        }));
-
-        if(!sent)
-            channel.sendMessage("Error while sending quote!");
+        EmbedMessage.send(channel, null, embed).queue();
     }
 
     private List<String> splitString(FontMetrics metrics, String txt) {

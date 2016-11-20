@@ -2,7 +2,7 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import fr.minuskube.bot.discord.util.Webhook;
+import fr.minuskube.bot.discord.util.EmbedMessage;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 public class InfosCommand extends Command {
 
     public InfosCommand() {
-        super("infos", Collections.singletonList("info"), "Shows some informations on the bot.");
+        super("infos", Collections.singletonList("info"), "Shows some informations on the bot.", "");
     }
 
     @Override
@@ -39,13 +39,12 @@ public class InfosCommand extends Command {
                     .appendString("  \u00bb Uptime: ", MessageBuilder.Formatting.BOLD)
                     .appendString(DurationFormatUtils.formatDuration(uptime.toMillis(), "D'd' HH'h' MM'm'")).build())
                     .queue();
-        }
-        else {
+        } else {
             TextChannel textChannel = (TextChannel) channel;
 
             JSONObject fieldLibs = new JSONObject(new HashMap<String, Object>() {{
                 put("name", "Libraries");
-                put("value", "**JDA, Giphy4J, JTidy, **");
+                put("value", "**JDA, Giphy4J, JTidy**");
             }});
 
             JSONObject fieldUptime = new JSONObject(new HashMap<String, Object>() {{
@@ -75,18 +74,12 @@ public class InfosCommand extends Command {
                 }});
             }});
 
-            Webhook webhook = Webhook.getBotHook(textChannel);
-
-            if(webhook == null) {
-                channel.sendMessage("Error while creating quote!").queue();
-                return;
-            }
-
-            webhook.execute(new JSONObject(new HashMap<String, Object>() {{
-                put("embeds", new JSONArray(Collections.singleton(embed)));
-            }}));
+            EmbedMessage.send(textChannel, null, embed).queue();
         }
 
     }
+
+    @Override
+    public boolean checkSyntax(Message msg, String[] args) { return true; }
 
 }

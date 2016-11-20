@@ -22,6 +22,8 @@ public class DiscordBotAPI {
 
     public static JDA client() { return DiscordBot.instance().getClient(); }
     public static SelfUser self() { return client().getSelfUser(); }
+    public static String prefix() { return DiscordBot.instance().getConfig().getPrefix(); }
+
     public static void stop() { DiscordBot.instance().stop(); }
 
     public static JDA login(String token) throws LoginException, InterruptedException, RateLimitedException {
@@ -34,7 +36,7 @@ public class DiscordBotAPI {
     }
 
 
-    public static void registerCommands(Command... cmds) {
+    public static void  registerCommands(Command... cmds) {
         Collections.addAll(commands, cmds);
     }
 
