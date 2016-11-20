@@ -6,6 +6,7 @@ import fr.minuskube.bot.discord.commands.AddCommand;
 import fr.minuskube.bot.discord.commands.ClearCommand;
 import fr.minuskube.bot.discord.commands.ComicsCommand;
 import fr.minuskube.bot.discord.commands.DrawCommand;
+import fr.minuskube.bot.discord.commands.EvalCommand;
 import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
 import fr.minuskube.bot.discord.commands.GamesCommand;
 import fr.minuskube.bot.discord.commands.GifCommand;
@@ -25,6 +26,7 @@ import fr.minuskube.bot.discord.games.TicTacToeGame;
 import fr.minuskube.bot.discord.listeners.CommandListener;
 import fr.minuskube.bot.discord.listeners.GameListener;
 import fr.minuskube.bot.discord.listeners.MuteListener;
+import fr.minuskube.bot.discord.listeners.PollListener;
 import fr.minuskube.bot.discord.trello.TCPServer;
 import fr.minuskube.bot.discord.util.Webhook;
 import net.dv8tion.jda.core.JDA;
@@ -73,6 +75,9 @@ public class DiscordBot {
     public void ready(JDA client) {
         this.client = client;
 
+        LOGGER.info("Connected on " + client.getGuilds().size() + " guilds with "
+                + client.getUsers().size() + " users!");
+
         LOGGER.info("Starting server...");
         new TCPServer().start();
 
@@ -98,7 +103,8 @@ public class DiscordBot {
                 new MuteCommand(),
                 new PollCommand(),
                 new ClearCommand(),
-                new ComicsCommand()
+                new ComicsCommand(),
+                new EvalCommand()
         );
 
         LOGGER.info("Registering games...");
@@ -113,7 +119,8 @@ public class DiscordBot {
         client.addEventListener(
                 new CommandListener(this),
                 new GameListener(this),
-                new MuteListener(this)
+                new MuteListener(this),
+                new PollListener(this)
         );
 
         LOGGER.info("Initializing webhooks...");
@@ -121,7 +128,7 @@ public class DiscordBot {
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.4.1"));
+        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.5.2"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
