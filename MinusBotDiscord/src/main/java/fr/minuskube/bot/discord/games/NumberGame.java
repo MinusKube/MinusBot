@@ -35,9 +35,9 @@ public class NumberGame extends Game {
         datas.put(player, new NumberGameData(channel, player, random.nextInt(MAX) + 1));
 
         channel.sendMessage(new MessageBuilder()
-                .appendString("Welcome to the Find The Number game.\n")
-                .appendString("Find the correct number between 1 and " + MAX + ", ")
-                .appendString("you have `" + TRIES + "` tries.").build())
+                .append("Welcome to the Find The Number game.\n")
+                .append("Find the correct number between 1 and " + MAX + ", ")
+                .append("you have `" + TRIES + "` tries.").build())
                 .queue();
     }
 
@@ -55,7 +55,7 @@ public class NumberGame extends Game {
 
             if(input < 1 || input > MAX) {
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("Please enter a number between 1 and " + MAX + "...").build())
+                        .append("Please enter a number between 1 and " + MAX + "...").build())
                         .queue();
                 return;
             }
@@ -75,10 +75,10 @@ public class NumberGame extends Game {
                 String triesStr = data.getTries().toString();
 
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("\n`Tries: " + triesStr + "`\n\n")
-                        .appendString("Yeah, correct guess (**`" + number + "`**), you won with `" + triesLeft + "`"
+                        .append("\n`Tries: " + triesStr + "`\n\n")
+                        .append("Yeah, correct guess (**`" + number + "`**), you won with `" + triesLeft + "`"
                                 + (triesLeft < 2 ? " try" : " tries") + " left.\n")
-                        .appendString("Thanks for playing!").build())
+                        .append("Thanks for playing!").build())
                         .queue();
 
                 end(p, channel);
@@ -90,11 +90,11 @@ public class NumberGame extends Game {
 
                 try {
                     Message msg_ = channel.sendMessage(new MessageBuilder()
-                            .appendString("\n`Tries: " + triesStr + "`\n\n")
-                            .appendString("Wrong guess! The correct number is **"
+                            .append("\n`Tries: " + triesStr + "`\n\n")
+                            .append("Wrong guess! The correct number is **"
                                     + (number < input ? "lower" : "higher")
                                     + "** than " + input + ".\n")
-                            .appendString("`" + triesLeft + "`" + (triesLeft < 2 ? " try" : " tries") + " left.")
+                            .append("`" + triesLeft + "`" + (triesLeft < 2 ? " try" : " tries") + " left.")
                             .build())
                             .block();
 
@@ -107,9 +107,9 @@ public class NumberGame extends Game {
                 String triesStr = data.getTries().toString();
 
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("\n`Tries: " + triesStr + "`\n\n")
-                        .appendString("Wrong guess! You lose!\n", MessageBuilder.Formatting.BOLD)
-                        .appendString("The correct number was " + number + ".").build())
+                        .append("\n`Tries: " + triesStr + "`\n\n")
+                        .append("Wrong guess! You lose!\n", MessageBuilder.Formatting.BOLD)
+                        .append("The correct number was " + number + ".").build())
                         .queue();
 
                 end(p, channel);
@@ -119,7 +119,7 @@ public class NumberGame extends Game {
             data.setTriesLeft(triesLeft);
         } catch(NumberFormatException e) {
             channel.sendMessage(new MessageBuilder()
-                    .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
+                    .append("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
                     .queue(msg_ -> Executors.newScheduledThreadPool(1)
                             .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
         }

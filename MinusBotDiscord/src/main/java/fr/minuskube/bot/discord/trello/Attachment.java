@@ -5,13 +5,11 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class Attachment implements Serializable {
+public class Attachment extends Component implements Serializable {
 
-    private String id;
     private String name;
     private String url;
 
-    public String getId() { return id; }
     public String getName() { return name; }
     public String getUrl() { return url; }
 

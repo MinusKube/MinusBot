@@ -59,16 +59,16 @@ public class SuggestCommand extends Command {
         suggestionsAmount.put(msg.getAuthor(), suggestionsAmount.getOrDefault(msg.getAuthor(), 0) + 1);
 
         msg.getChannel().sendMessage(new MessageBuilder()
-                .appendString("Thank you for your suggestion ").appendMention(msg.getAuthor())
-                .appendString("!").build())
+                .append("Thank you for your suggestion ").append(msg.getAuthor())
+                .append("!").build())
                 .queue();
 
         DiscordBot.instance().getOwner().getPrivateChannel().sendMessage(new MessageBuilder()
-                .appendMention(msg.getAuthor())
-                .appendString(" made a suggestion for me!", MessageBuilder.Formatting.BOLD)
-                .appendString("\n")
-                .appendString("Content: ", MessageBuilder.Formatting.BOLD)
-                .appendString(sb.toString()).build())
+                .append(msg.getAuthor())
+                .append(" made a suggestion for me!", MessageBuilder.Formatting.BOLD)
+                .append("\n")
+                .append("Content: ", MessageBuilder.Formatting.BOLD)
+                .append(sb.toString()).build())
                 .queue();
     }
 

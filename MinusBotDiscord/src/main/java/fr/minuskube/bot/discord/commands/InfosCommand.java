@@ -32,14 +32,15 @@ public class InfosCommand extends Command {
 
         if(!(channel instanceof TextChannel)) {
             channel.sendMessage(new MessageBuilder()
-                    .appendString("  \u00bb Author: ", MessageBuilder.Formatting.BOLD)
-                    .appendString("MinusKube").appendString("\n")
-                    .appendString("  \u00bb Libraries: ", MessageBuilder.Formatting.BOLD)
-                    .appendString("JDA, Giphy4J, JTidy").appendString("\n")
-                    .appendString("  \u00bb Uptime: ", MessageBuilder.Formatting.BOLD)
-                    .appendString(DurationFormatUtils.formatDuration(uptime.toMillis(), "D'd' HH'h' MM'm'")).build())
+                    .append("  \u00bb Author: ", MessageBuilder.Formatting.BOLD)
+                    .append("MinusKube").append("\n")
+                    .append("  \u00bb Libraries: ", MessageBuilder.Formatting.BOLD)
+                    .append("JDA, Giphy4J, JTidy").append("\n")
+                    .append("  \u00bb Uptime: ", MessageBuilder.Formatting.BOLD)
+                    .append(DurationFormatUtils.formatDuration(uptime.toMillis(), "d'd' HH'h' mm'm'")).build())
                     .queue();
-        } else {
+        }
+        else {
             TextChannel textChannel = (TextChannel) channel;
 
             JSONObject fieldLibs = new JSONObject(new HashMap<String, Object>() {{
@@ -50,7 +51,7 @@ public class InfosCommand extends Command {
             JSONObject fieldUptime = new JSONObject(new HashMap<String, Object>() {{
                 put("name", "Uptime");
                 put("value", "**" + DurationFormatUtils.formatDuration(uptime.toMillis(),
-                        "d'd' HH'h' MM'm'") + "**");
+                        "d'd' HH'h' mm'm'") + "**");
             }});
 
             JSONObject fieldGithub = new JSONObject(new HashMap<String, Object>() {{

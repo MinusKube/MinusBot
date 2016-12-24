@@ -9,12 +9,17 @@ import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DrawCommand extends Command {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DrawCommand.class);
 
     private Map<MessageChannel, DrawSession> sessions = new HashMap<>();
 
@@ -37,8 +42,8 @@ public class DrawCommand extends Command {
         if(!sessions.containsKey(channel)) {
             if(args.length != 2) {
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("There is no draw session on this channel.\n", MessageBuilder.Formatting.BOLD)
-                        .appendString("Use " + prefix + "draw <width> <height> to create one.").build())
+                        .append("There is no draw session on this channel.\n", MessageBuilder.Formatting.BOLD)
+                        .append("Use " + prefix + "draw <width> <height> to create one.").build())
                         .queue();
                 return;
             }
@@ -58,8 +63,8 @@ public class DrawCommand extends Command {
                 sessions.put(channel, session);
 
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("Draw session created!", MessageBuilder.Formatting.BOLD)
-                        .appendString(availableCommands()).build())
+                        .append("Draw session created! ", MessageBuilder.Formatting.BOLD)
+                        .append(availableCommands()).build())
                         .queue();
             } catch(NumberFormatException e) {
                 wrongSyntax(channel, "<width> <height>");
@@ -72,7 +77,7 @@ public class DrawCommand extends Command {
 
         if(args.length == 0) {
             channel.sendMessage(new MessageBuilder()
-                    .appendString(availableCommands()).build()).queue();
+                    .append(availableCommands()).build()).queue();
             return;
         }
 
@@ -98,6 +103,35 @@ public class DrawCommand extends Command {
 
                     session.color(red, green, blue, alpha);
                     session.sendColor();
+                } catch(NumberFormatException e) {
+                    wrongSyntax(channel, syntax);
+                }
+
+                break;
+            }
+
+            case "line": {
+                syntax = "line <x1> <y1> <x2> <y2> [line-width]";
+
+                if(args.length < 5 || args.length > 6) {
+                    wrongSyntax(channel, syntax);
+                    return;
+                }
+
+                try {
+                    int x1 = Integer.parseInt(args[1]);
+                    int y1 = Integer.parseInt(args[2]);
+                    int x2 = Integer.parseInt(args[3]);
+                    int y2 = Integer.parseInt(args[4]);
+
+                    if(args.length == 6) {
+                        int lineWidth = Integer.parseInt(args[5]);
+                        session.drawLine(x1, y1, x2, y2, lineWidth);
+                    }
+                    else
+                        session.drawLine(x1, y1, x2, y2);
+
+                    session.send();
                 } catch(NumberFormatException e) {
                     wrongSyntax(channel, syntax);
                 }
@@ -240,6 +274,40 @@ public class DrawCommand extends Command {
                 break;
             }
 
+            case "image": {
+                syntax = "image <x> <y> <url> [width] [height]";
+
+                if(args.length != 4 && args.length != 6) {
+                    wrongSyntax(channel, syntax);
+                    return;
+                }
+
+                try {
+                    int x = Integer.parseInt(args[1]);
+                    int y = Integer.parseInt(args[2]);
+                    String url = args[3];
+
+                    if(args.length == 6) {
+                        int width = Integer.parseInt(args[4]);
+                        int height = Integer.parseInt(args[5]);
+
+                        session.drawImage(x, y, url, width, height);
+                    }
+                    else
+                        session.drawImage(x, y, url);
+
+                    session.send();
+                } catch(NumberFormatException e) {
+                    wrongSyntax(channel, syntax);
+                } catch(IOException e) {
+                    MessageUtils.error(channel, "Can't retrieve the image from the given url!")
+                            .queue();
+                    LOGGER.debug("Can't retrieve image from given url: ", e);
+                }
+
+                break;
+            }
+
             case "show": {
                 session.send();
                 break;
@@ -260,7 +328,7 @@ public class DrawCommand extends Command {
                 session.reset();
 
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("The session has been reset.").build())
+                        .append("The session has been reset.").build())
                         .queue();
                 break;
             }
@@ -269,7 +337,7 @@ public class DrawCommand extends Command {
                 sessions.remove(channel);
 
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("Session stopped for this channel!", MessageBuilder.Formatting.BOLD).build())
+                        .append("Session stopped for this channel!", MessageBuilder.Formatting.BOLD).build())
                         .queue();
                 break;
             }
@@ -288,12 +356,12 @@ public class DrawCommand extends Command {
         return "Available commands:\n" +
                 "```" +
                 p + "draw color <red> <green> <blue> [alpha]\n" +
-                "(SOON) " + p + "draw line <x1> <y1> <x2> <x2> [line-width]\n" +
+                p + "draw line <x1> <y1> <x2> <y2> [line-width]\n" +
                 p + "draw rect <x> <y> <width> <height>\n" +
                 p + "draw hrect <x> <y> <width> <height> [line-width]\n" +
                 p + "draw circle <x> <y> <width> <height>\n" +
                 p + "draw hcircle <x> <y> <width> <height> [line-width]\n" +
-                "(SOON) " + p + "draw image <x> <y> <width> <height> <url>\n" +
+                p + "draw image <x> <y> <url> [width] [height]\n" +
                 p + "draw text <size> <x> <y> <text>\n" +
                 p + "draw show\n" +
                 p + "draw cancel\n" +

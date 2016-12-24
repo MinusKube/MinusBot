@@ -22,7 +22,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +46,7 @@ public class TicTacToeGame extends Game {
         }
     }
 
-    private Player waitingPlayer;
+    private Map<TextChannel, Player> waitingPlayers = new HashMap<>();
 
     public TicTacToeGame() {
         super("tictactoe", "Two players, X and O, take turns marking the spaces in a 3×3 grid.");
@@ -57,16 +59,16 @@ public class TicTacToeGame extends Game {
     public void start(Player player, TextChannel channel) {
         super.start(player, channel);
 
-        if(waitingPlayer == null) {
-            waitingPlayer = player;
+        if(!waitingPlayers.containsKey(channel)) {
+            waitingPlayers.put(channel, player);
 
             channel.sendMessage(new MessageBuilder()
-                    .appendString("Game joined! The game will start when another player will join.").build())
+                    .append("Game joined! The game will start when another player will join.").build())
                     .queue();
         }
         else {
-            Player opponent = waitingPlayer;
-            waitingPlayer = null;
+            Player opponent = waitingPlayers.get(channel);
+            waitingPlayers.remove(channel);
 
             TTTGameData data = new TTTGameData(channel, player, opponent);
 
@@ -100,14 +102,14 @@ public class TicTacToeGame extends Game {
 
                 if(input < 1 || input > 9) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("Please enter a number between 1 and 9...").build())
+                            .append("Please enter a number between 1 and 9...").build())
                             .queue();
                     return;
                 }
 
                 if(data.getGrid()[input - 1] != -1) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("There is already a shape on this space...").build())
+                            .append("There is already a shape on this space...").build())
                             .queue();
                     return;
                 }
@@ -126,17 +128,17 @@ public class TicTacToeGame extends Game {
 
                 if(winner != null) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("The game is ended! ")
-                            .appendString("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
-                            .appendMention(winner.getMember().getUser()).build())
+                            .append("The game is ended! ")
+                            .append("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
+                            .append(winner.getMember().getUser()).build())
                             .queue();
 
                     end(p, channel);
                 }
                 else if(checkFull(data)) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("The game is ended! ")
-                            .appendString("Nobody won!", MessageBuilder.Formatting.BOLD).build())
+                            .append("The game is ended! ")
+                            .append("Nobody won!", MessageBuilder.Formatting.BOLD).build())
                             .queue();
 
                     end(p, channel);
@@ -146,7 +148,7 @@ public class TicTacToeGame extends Game {
                     msg.deleteMessage().queue();
             } catch(NumberFormatException e) {
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
+                        .append("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
                         .queue(msg_ -> Executors.newScheduledThreadPool(1)
                                 .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
             }
@@ -315,8 +317,8 @@ public class TicTacToeGame extends Game {
 
         super.end(player, channel);
 
-        if(waitingPlayer == player)
-            waitingPlayer = null;
+        if(waitingPlayers.get(channel) == player)
+            waitingPlayers.remove(channel);
     }
 
     class TTTGameData extends GameData {

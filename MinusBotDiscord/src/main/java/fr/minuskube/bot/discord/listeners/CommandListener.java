@@ -32,6 +32,8 @@ public class CommandListener extends Listener {
             return;
         if(!msg.getContent().startsWith(DiscordBotAPI.prefix()))
             return;
+        if(msg.getAuthor() == DiscordBotAPI.self())
+            return;
 
         if(msg.getChannelType() == ChannelType.TEXT) {
             TextChannel channel = (TextChannel) msg.getChannel();
@@ -42,9 +44,9 @@ public class CommandListener extends Listener {
 
             if(!guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) {
                 Message message = new MessageBuilder()
-                        .appendString("Couldn't answer you in channel ")
-                        .appendString(channel.getName(), MessageBuilder.Formatting.ITALICS)
-                        .appendString(", I don't have the permission to write messages.").build();
+                        .append("Couldn't answer you in channel ")
+                        .append(channel.getName(), MessageBuilder.Formatting.ITALICS)
+                        .append(", I don't have the permission to write messages.").build();
 
                 msg.getAuthor().getPrivateChannel().sendMessage(message).queue();
                 return;

@@ -4,6 +4,7 @@ import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.StreamUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -22,7 +23,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +47,7 @@ public class ConnectFourGame extends Game {
         }
     }
 
-    private Player waitingPlayer;
+    private Map<Channel, Player> waitingPlayers = new HashMap<>();
 
     public ConnectFourGame() {
         super("c4", "(Connect Four) You have to connect four discs of the same color next to each other.");
@@ -57,16 +60,16 @@ public class ConnectFourGame extends Game {
     public void start(Player player, TextChannel channel) {
         super.start(player, channel);
 
-        if(waitingPlayer == null) {
-            waitingPlayer = player;
+        if(!waitingPlayers.containsKey(channel)) {
+            waitingPlayers.put(channel, player);
 
             channel.sendMessage(new MessageBuilder()
-                    .appendString("Game joined! The game will start when another player will join.").build())
+                    .append("Game joined! The game will start when another player will join.").build())
                     .queue();
         }
         else {
-            Player opponent = waitingPlayer;
-            waitingPlayer = null;
+            Player opponent = waitingPlayers.get(channel);
+            waitingPlayers.remove(channel);
 
             C4GameData data = new C4GameData(channel, player, opponent);
 
@@ -100,14 +103,14 @@ public class ConnectFourGame extends Game {
 
                 if(input < 1 || input > 7) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("Please enter a number between 1 and 7...").build())
+                            .append("Please enter a number between 1 and 7...").build())
                             .queue();
                     return;
                 }
 
                 if(data.getGrid()[input - 1][0] != -1) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("This column is full!").build())
+                            .append("This column is full!").build())
                             .queue();
                     return;
                 }
@@ -138,17 +141,17 @@ public class ConnectFourGame extends Game {
 
                 if(winner != null) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("The game is ended! ")
-                            .appendString("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
-                            .appendMention(winner.getMember().getUser()).build())
+                            .append("The game is ended! ")
+                            .append("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
+                            .append(winner.getMember().getUser()).build())
                             .queue();
 
                     end(p, channel);
                 }
                 else if(checkFull(data)) {
                     channel.sendMessage(new MessageBuilder()
-                            .appendString("The game is ended! ")
-                            .appendString("Nobody won!", MessageBuilder.Formatting.BOLD).build())
+                            .append("The game is ended! ")
+                            .append("Nobody won!", MessageBuilder.Formatting.BOLD).build())
                             .queue();
 
                     end(p, channel);
@@ -158,7 +161,7 @@ public class ConnectFourGame extends Game {
                     msg.deleteMessage().queue();
             } catch(NumberFormatException e) {
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
+                        .append("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
                         .queue(msg_ -> Executors.newScheduledThreadPool(1)
                                 .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
             }
@@ -258,8 +261,8 @@ public class ConnectFourGame extends Game {
             File tempFile = StreamUtils.tempFileFromImage(image, "game-c4", ".png");
 
             Message msg = channel.sendFile(tempFile, new MessageBuilder()
-                    .appendString("Turn: ", MessageBuilder.Formatting.BOLD)
-                    .appendMention(data.getTurn().getMember().getUser()).build()).block();
+                    .append("Turn: ", MessageBuilder.Formatting.BOLD)
+                    .append(data.getTurn().getMember().getUser()).build()).block();
 
             data.setLastMsg(msg);
         } catch(IOException | RateLimitedException e) {
@@ -365,8 +368,8 @@ public class ConnectFourGame extends Game {
 
         super.end(player, channel);
 
-        if(waitingPlayer == player)
-            waitingPlayer = null;
+        if(waitingPlayers.get(channel) == player)
+            waitingPlayers.remove(channel);
     }
 
     class C4GameData extends GameData {

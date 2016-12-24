@@ -11,16 +11,19 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 public class DrawSession {
 
@@ -51,6 +54,23 @@ public class DrawSession {
 
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
         g2d.setColor(Color.BLACK);
+    }
+
+    public void drawLine(int x1, int y1, int x2, int y2, int lineWidth) {
+        copyLastImg();
+
+        Stroke def = g2d.getStroke();
+
+        g2d.setStroke(new BasicStroke(lineWidth));
+        g2d.drawLine(x1, y1, x2, y2);
+
+        g2d.setStroke(def);
+    }
+
+    public void drawLine(int x1, int y1, int x2, int y2) {
+        copyLastImg();
+
+        g2d.drawLine(x1, y1, x2, y2);
     }
 
     public void drawRect(int x, int y, int width, int height, int lineWidth) {
@@ -106,6 +126,20 @@ public class DrawSession {
         g2d.drawString(text, x, y + g2d.getFontMetrics().getAscent());
     }
 
+    public void drawImage(int x, int y, String url, int width, int height) throws IOException {
+        Image img = ImageIO.read(new URL(url));
+        copyLastImg();
+
+        g2d.drawImage(img, x, y, width, height, null, null);
+    }
+
+    public void drawImage(int x, int y, String url) throws IOException {
+        Image img = ImageIO.read(new URL(url));
+        copyLastImg();
+
+        g2d.drawImage(img, x, y, null, null);
+    }
+
     public void color(int red, int green, int blue, int alpha) {
         g2d.setColor(new Color(red, green, blue, alpha));
     }
@@ -123,7 +157,7 @@ public class DrawSession {
 
             if(!guild.getSelfMember().hasPermission(tc, Permission.MESSAGE_ATTACH_FILES)) {
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build())
+                        .append("No permission to send files!", MessageBuilder.Formatting.BOLD).build())
                         .queue();
                 return;
             }
@@ -131,7 +165,7 @@ public class DrawSession {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "draw-color-" + channel.getId(), ".png");
-            channel.sendFile(tempFile, new MessageBuilder().appendString("New color set!").build()).queue();
+            channel.sendFile(tempFile, new MessageBuilder().append("New color set!").build()).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send color image:", e);
         }
@@ -142,6 +176,7 @@ public class DrawSession {
         boolean alphaPremult = cm.isAlphaPremultiplied();
 
         this.lastImg = new BufferedImage(cm, image.copyData(null), alphaPremult, null);
+        this.lastImg.createGraphics().setColor(g2d.getColor());
     }
 
     public boolean cancel() {
@@ -183,7 +218,7 @@ public class DrawSession {
 
             if(!guild.getSelfMember().hasPermission(tc, Permission.MESSAGE_ATTACH_FILES)) {
                 channel.sendMessage(new MessageBuilder()
-                        .appendString("No permission to send files!", MessageBuilder.Formatting.BOLD).build())
+                        .append("No permission to send files!", MessageBuilder.Formatting.BOLD).build())
                         .queue();
                 return;
             }

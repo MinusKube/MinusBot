@@ -32,4 +32,24 @@ public class StreamUtils {
         return tempFile;
     }
 
+    public static File fileFromImage(File file, BufferedImage image) throws IOException {
+        if(!file.exists()) {
+            if(file.getParentFile() != null)
+                file.getParentFile().mkdirs();
+
+            file.createNewFile();
+        }
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", os);
+
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        try(FileOutputStream out = new FileOutputStream(file)) {
+            IOUtils.copy(is, out);
+        }
+
+        return file;
+    }
+
 }

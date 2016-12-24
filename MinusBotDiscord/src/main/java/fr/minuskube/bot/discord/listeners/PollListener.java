@@ -1,9 +1,10 @@
 package fr.minuskube.bot.discord.listeners;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import fr.minuskube.bot.discord.DiscordBotAPI;
-import fr.minuskube.bot.discord.games.Game;
-import fr.minuskube.bot.discord.games.Player;
+import fr.minuskube.bot.discord.util.MessageUtils;
+import fr.minuskube.bot.discord.util.Poll;
+import fr.minuskube.bot.discord.util.PollCreation;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -11,11 +12,9 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.util.List;
+public class PollListener extends Listener {
 
-public class GameListener extends Listener {
-
-    public GameListener(DiscordBot bot) {
+    public PollListener(DiscordBot bot) {
         super(bot);
     }
 
@@ -25,28 +24,57 @@ public class GameListener extends Listener {
 
         if(msg.getChannelType() != ChannelType.TEXT)
             return;
-        if(msg.getContent().startsWith(DiscordBotAPI.prefix()))
+
+        checkVote(msg);
+        checkCreation(msg);
+    }
+
+    private void checkVote(Message msg) {
+        if(msg.getContent().length() != 2)
+            return;
+        if(!msg.getContent().startsWith("#"))
             return;
 
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
         Member member = guild.getMember(msg.getAuthor());
 
-        Game game = DiscordBotAPI.getGameByUser(member);
+        Poll poll = Poll.getPolls().get(channel);
 
-        if(game == null)
+        if(poll == null)
             return;
 
-        List<Player> players = Player.getPlayers(member);
+        try {
+            if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+                msg.deleteMessage().queue();
 
-        if(players.isEmpty())
-            return;
-        if(game.getData(players.get(0)) == null)
-            return;
-        if(game.getData(players.get(0)).getChannel() != msg.getChannel())
+            int input = Integer.parseInt(msg.getContent().substring(1));
+
+            if(poll.hasVoted(member))
+                MessageUtils.error(channel, "You already voted on this poll!").queue();
+            else if(input < 1 || input > poll.getChoices().length)
+                MessageUtils.error(channel, "Invalid number.").queue();
+            else
+                poll.vote(member, input - 1);
+        } catch(NumberFormatException ignored) {}
+    }
+
+    private void checkCreation(Message msg) {
+        if(msg.getContent().startsWith("$"))
             return;
 
-        game.receiveMsg(msg);
+        TextChannel channel = (TextChannel) msg.getChannel();
+        Guild guild = channel.getGuild();
+        Member member = guild.getMember(msg.getAuthor());
+
+        PollCreation creation = PollCreation.getCreations().get(channel);
+
+        if(creation == null)
+            return;
+        if(creation.getMember() != member)
+            return;
+
+        creation.receive(msg);
     }
 
 }

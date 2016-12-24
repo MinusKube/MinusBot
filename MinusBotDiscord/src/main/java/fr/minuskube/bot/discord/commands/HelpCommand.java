@@ -13,14 +13,14 @@ public class HelpCommand extends Command {
     @Override
     public void execute(Message msg, String[] args) {
         MessageBuilder builder = new MessageBuilder()
-                .appendString("Commands:", MessageBuilder.Formatting.BOLD).appendString("\n");
+                .append("Commands:", MessageBuilder.Formatting.BOLD).append("\n");
 
         for(Command cmd : DiscordBotAPI.getCommands()) {
             if(cmd.isHidden())
                 continue;
 
-            builder.appendString("\n  - " + DiscordBotAPI.prefix() + cmd.getName() + " : ").
-                    appendString(cmd.getDescription(), MessageBuilder.Formatting.ITALICS);
+            builder.append("\n  - " + DiscordBotAPI.prefix() + cmd.getName() + " : ").
+                    append(cmd.getDescription(), MessageBuilder.Formatting.ITALICS);
         }
 
         msg.getChannel().sendMessage(builder.build()).queue();

@@ -27,14 +27,14 @@ public class GamesCommand extends Command {
 
         if(args.length < 1) {
             MessageBuilder builder = new MessageBuilder()
-                    .appendString("List of available games:", MessageBuilder.Formatting.BOLD);
+                    .append("List of available games:", MessageBuilder.Formatting.BOLD);
 
             for(Game game : DiscordBotAPI.getGames())
-                builder.appendString("\n  - `" + game.getName() + "` : ")
-                        .appendString(game.getDescription(), MessageBuilder.Formatting.ITALICS);
+                builder.append("\n  - `" + game.getName() + "` : ")
+                        .append(game.getDescription(), MessageBuilder.Formatting.ITALICS);
 
-            builder.appendString("\n\nUse `" + DiscordBotAPI.prefix() + "games <name>` to start a game.")
-                    .appendString("\nUse `" + DiscordBotAPI.prefix() + "game leave` to leave a game.");
+            builder.append("\n\nUse `" + DiscordBotAPI.prefix() + "games <name>` to start a game.")
+                    .append("\nUse `" + DiscordBotAPI.prefix() + "game leave` to leave a game.");
 
             channel.sendMessage(builder.build()).queue();
             return;
@@ -52,7 +52,7 @@ public class GamesCommand extends Command {
             game.end(p, channel);
 
             channel.sendMessage(new MessageBuilder()
-                    .appendString("Game successfully left.").build())
+                    .append("Game successfully left.").build())
                     .queue();
             return;
         }

@@ -1,62 +1,157 @@
 package fr.minuskube.bot.discord.util;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.json.JSONObject;
+import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Quote {
 
+    public static final String EMOTE_NEXT = "\u23e9";
+    public static final String EMOTE_REMOVE = "\u274e";
     private static final Logger LOGGER = LoggerFactory.getLogger(Quote.class);
+
+    private static List<Quote> listening = new ArrayList<>();
+
+    private Member asker;
 
     private TextChannel channel;
     private Member author;
+    private User user;
     private String msg;
     private Date date;
 
-    public Quote(TextChannel channel, Member author, String msg, Date date) {
+    private List<Message> msgs;
+
+    private Message message;
+    private TimerTask task;
+
+    public Quote(Member asker, TextChannel channel, Member author, String msg, Date date) {
+        this.asker = asker;
         this.channel = channel;
         this.author = author;
         this.msg = msg;
         this.date = date;
+
+        if(author != null)
+            this.user = author.getUser();
+    }
+
+    public Quote(Member asker, TextChannel channel, User user, String msg, Date date) {
+        this(asker, channel, (Member) null, msg, date);
+        this.user = user;
+    }
+
+    public Quote(Member asker, TextChannel channel, List<Message> msgs) {
+        Message message = msgs.get(0);
+
+        OffsetDateTime odt = message.getCreationTime();
+        Date date = Date.from(odt.toInstant());
+
+        this.asker = asker;
+        this.channel = channel;
+        this.author = !message.isWebhookMessage() ? channel.getGuild().getMember(message.getAuthor()) : null;
+        this.user = !message.isWebhookMessage() ? author.getUser() : message.getAuthor();
+        this.msg = message.getRawContent();
+        this.date = date;
+
+        msgs.remove(0);
+        this.msgs = msgs;
     }
 
     public void send() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        channel.sendMessage(buildEmbed()).queue(msg -> {
+            this.message = msg;
 
-        Color color = author.getColor();
+            if(msgs != null)
+                msg.addReaction(EMOTE_NEXT).queue();
 
-        int rgb =   color != null ? (((color.getRed() & 0xFF) << 16) |
-                    ((color.getGreen() & 0xFF) << 8)  |
-                    ((color.getBlue() & 0xFF))) : 0;
-        String avatar = author.getUser().getAvatarId() != null  ? author.getUser().getAvatarUrl()
-                                                                : author.getUser().getDefaultAvatarUrl();
+            msg.addReaction(EMOTE_REMOVE).queue();
 
-        JSONObject embed = new JSONObject(new HashMap<String, Object>() {
-            {
-                put("color", rgb);
-                put("description", msg);
-                put("timestamp", dateFormat.format(date));
-
-                put("footer", new JSONObject()
-                        .put("text", author.getEffectiveName())
-                        .put("icon_url", avatar));
-            }
+            listening.add(this);
+            startTask();
         });
+    }
 
-        EmbedMessage.send(channel, null, embed).queue();
+    private void startTask() {
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                listening.remove(Quote.this);
+
+                if(hasNext())
+                    MessageUtils.removeReaction(EMOTE_NEXT, message).queue();
+
+                MessageUtils.removeReaction(EMOTE_REMOVE, message).queue();
+            }
+        };
+
+        new Timer().schedule(task, 1000 * 20);
+    }
+
+    private MessageEmbed buildEmbed() {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE dd/MM 'at' HH:mm");
+        formatter.setTimeZone(TimeZone.getTimeZone(ZoneId.of("Europe/Paris")));
+
+        Color color = author != null ? author.getColor() : null;
+        String avatar = user.getAvatarId() != null
+                ? user.getAvatarUrl() : user.getDefaultAvatarUrl();
+
+        return new EmbedBuilder()
+                .setColor(color)
+                .setDescription(msg)
+                .setFooter((author != null ? author.getEffectiveName() : user.getName())
+                        + " | " + formatter.format(date), avatar)
+                .build();
+    }
+
+    public boolean hasNext() {
+        return msgs != null && !msgs.isEmpty();
+    }
+
+    public void next() {
+        Message message = msgs.remove(0);
+
+        OffsetDateTime odt = message.getCreationTime();
+        Date date = Date.from(odt.toInstant());
+
+        this.author = !message.isWebhookMessage() ? channel.getGuild().getMember(message.getAuthor()) : null;
+        this.user = !message.isWebhookMessage() ? author.getUser() : message.getAuthor();
+        this.msg = message.getRawContent();
+        this.date = date;
+
+        Message newMsg = new MessageBuilder().setEmbed(buildEmbed()).build();
+        this.message.editMessage(newMsg).queue();
+
+        if(!hasNext())
+            MessageUtils.removeReaction(EMOTE_NEXT, this.message).queue();
+
+        if(task.cancel())
+            startTask();
+        else
+            LOGGER.warn("Can't stop task!");
+    }
+
+    public void delete() {
+        listening.remove(this);
+        message.deleteMessage().queue();
     }
 
     private List<String> splitString(FontMetrics metrics, String txt) {
@@ -91,6 +186,16 @@ public class Quote {
         }
 
         return result;
+    }
+
+    public Member getAsker() { return asker; }
+
+    public static Quote fromMessageId(String messageId) {
+        for(Quote quote : listening)
+            if(quote.message.getId().equals(messageId))
+                return quote;
+
+        return null;
     }
 
 }

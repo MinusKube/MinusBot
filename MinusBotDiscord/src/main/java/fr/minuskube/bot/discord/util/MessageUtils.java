@@ -1,12 +1,16 @@
 package fr.minuskube.bot.discord.util;
 
+import fr.minuskube.bot.discord.DiscordBotAPI;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,6 +32,24 @@ public class MessageUtils {
 
     public static RestAction<Message> error(MessageChannel channel, String errorMsg) {
         return error(channel, "ERROR!", errorMsg);
+    }
+
+    public static RestAction<Void> removeReaction(String emote, Message message) {
+        Route.CompiledRoute route = Route.Messages.REMOVE_REACTION.compile(message.getChannel().getId(),
+                message.getId(),
+                emote,
+                "@me");
+
+        return new RestAction<Void>(DiscordBotAPI.client(), route, null) {
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void handleResponse(Response response, Request request) {
+                if(response.isOk())
+                    request.onSuccess(null);
+                else
+                    request.onFailure(response);
+            }
+        };
     }
 
     public static List<Member> getMemberMentions(Guild guild, String msg) {

@@ -59,7 +59,7 @@ public class RPSGame extends Game {
         try {
             File tempFile = StreamUtils.tempFileFromInputStream(DiscordBot.class.getResourceAsStream("/imgs/rps.png"),
                     "game-rps", ".png");
-            channel.sendFile(tempFile, new MessageBuilder().appendString("Choose one!").build()).queue();
+            channel.sendFile(tempFile, new MessageBuilder().append("Choose one!").build()).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send image:", e);
         }
@@ -84,7 +84,7 @@ public class RPSGame extends Game {
             choice = 2;
         else {
             channel.sendMessage(new MessageBuilder()
-                    .appendString("Please, type `Rock`, `Paper` or `Scissors`...", MessageBuilder.Formatting.ITALICS)
+                    .append("Please, type `Rock`, `Paper` or `Scissors`...", MessageBuilder.Formatting.ITALICS)
                     .build())
                     .queue(msg_ -> Executors.newScheduledThreadPool(1)
                             .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));

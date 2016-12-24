@@ -9,10 +9,10 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuoteCommand extends Command {
 
@@ -33,20 +33,15 @@ public class QuoteCommand extends Command {
         String query = String.join(" ", (CharSequence[]) args);
 
         channel.getHistory().retrievePast(100).queue(msgs -> {
-            msgs.remove(0);
+            msgs.remove(msg);
 
-            Optional<Message> opMsg = msgs.stream()
+            List<Message> messages = msgs.stream()
                     .filter(message -> contains(message.getContent(), query)
                             || contains(message.getRawContent(), query))
-                    .findFirst();
+                    .limit(5).collect(Collectors.toList());
 
-            if(opMsg.isPresent()) {
-                Message message = opMsg.get();
-
-                OffsetDateTime odt = message.getCreationTime();
-                java.util.Date date = Date.from(odt.toInstant());
-
-                Quote quote = new Quote(channel, guild.getMember(message.getAuthor()), message.getRawContent(), date);
+            if(!messages.isEmpty()) {
+                Quote quote = new Quote(guild.getMember(msg.getAuthor()), channel, new ArrayList<Message>(messages));
                 quote.send();
             } else {
                 MessageUtils.error(channel, "No message found...").queue();

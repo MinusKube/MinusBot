@@ -97,8 +97,8 @@ public class CommitStrip extends TimerTask {
     private void send(String link) {
         for(TextChannel channel : channels) {
             channel.sendMessage(new MessageBuilder()
-                    .appendString("A new CommitStrip is out!\n", MessageBuilder.Formatting.BOLD)
-                    .appendString(link).build()).queue();
+                    .append("A new CommitStrip is out!\n", MessageBuilder.Formatting.BOLD)
+                    .append(link).build()).queue();
         }
     }
 

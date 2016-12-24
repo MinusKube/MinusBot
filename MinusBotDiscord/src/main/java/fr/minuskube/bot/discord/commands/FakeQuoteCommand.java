@@ -53,7 +53,7 @@ public class FakeQuoteCommand extends Command {
             String[] queryArgs = Arrays.copyOfRange(args, 1, args.length);
             String query = String.join(" ", (CharSequence[]) queryArgs);
 
-            Quote quote = new Quote(channel, member, query, new Date());
+            Quote quote = new Quote(guild.getMember(msg.getAuthor()), channel, member, query, new Date());
             quote.send();
         }
         else {

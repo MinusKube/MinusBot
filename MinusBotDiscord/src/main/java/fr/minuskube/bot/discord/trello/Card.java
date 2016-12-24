@@ -6,9 +6,8 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Card implements Serializable {
+public class Card extends Component implements Serializable {
 
-    private String id;
     private String idList;
     private int idShort;
     private String name;
@@ -17,7 +16,6 @@ public class Card implements Serializable {
     private Date due;
     private int pos;
 
-    public String getId() { return id; }
     public String getIdList() { return idList; }
     public int getIdShort() { return idShort; }
     public String getName() { return name; }

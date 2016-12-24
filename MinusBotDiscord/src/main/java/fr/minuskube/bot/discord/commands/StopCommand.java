@@ -22,7 +22,7 @@ public class StopCommand extends Command {
         }
 
         msg.getChannel().sendMessage(new MessageBuilder()
-                .appendString("Goodbye!", MessageBuilder.Formatting.BOLD,
+                .append("Goodbye!", MessageBuilder.Formatting.BOLD,
                         MessageBuilder.Formatting.ITALICS).build())
                 .queue();
 

@@ -5,15 +5,13 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class Member implements Serializable {
+public class Member extends Component implements Serializable {
 
-    private String id;
     private String username;
     private String fullName;
     private String initials;
     private String avatarHash;
 
-    public String getId() { return id; }
     public String getUsername() { return username; }
     public String getFullName() { return fullName; }
     public String getInitials() { return initials; }

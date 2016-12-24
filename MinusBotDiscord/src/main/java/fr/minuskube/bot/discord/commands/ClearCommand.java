@@ -1,7 +1,9 @@
 package fr.minuskube.bot.discord.commands;
 
-import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.MessageUtils;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
@@ -15,12 +17,15 @@ public class ClearCommand extends Command {
     }
 
     public void execute(Message msg, String[] args) {
-        if(msg.getAuthor() != DiscordBot.instance().getOwner()) {
-            MessageUtils.error(msg.getChannel(), "*You don't have the permission to execute this command...*").queue();
+        TextChannel channel = (TextChannel) msg.getChannel();
+        Guild guild = channel.getGuild();
+        Member author = guild.getMember(msg.getAuthor());
+
+        if(!author.hasPermission(channel, Permission.ADMINISTRATOR)) {
+            MessageUtils.error(channel, "*You don't have the permission to execute this command...*").queue();
             return;
         }
 
-        TextChannel channel = (TextChannel) msg.getChannel();
         int input = Integer.parseInt(args[0]);
 
         if(input < 1 || input > 500) {

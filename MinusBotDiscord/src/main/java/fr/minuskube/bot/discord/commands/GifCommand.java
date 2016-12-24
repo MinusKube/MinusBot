@@ -29,9 +29,9 @@ public class GifCommand extends Command {
             SearchRandom giphySearch = giphy.searchRandom(args.length > 0 ? args[0] : "");
 
             channel.sendMessage(new MessageBuilder()
-                    .appendMention(msg.getAuthor())
-                    .appendString(args.length > 0 ? " (" + args[0] + ")\n" : "\n")
-                    .appendString(giphySearch.getData().getImageOriginalUrl()).build())
+                    .append(msg.getAuthor())
+                    .append(args.length > 0 ? " (" + args[0] + ")\n" : "\n")
+                    .append(giphySearch.getData().getImageOriginalUrl()).build())
                     .queue();
         } catch (GiphyException e) {
             MessageUtils.error(channel, "No gif found.").queue();

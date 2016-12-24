@@ -1,61 +1,44 @@
 package fr.minuskube.bot.discord.listeners;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import fr.minuskube.bot.discord.DiscordBotAPI;
-import fr.minuskube.bot.discord.commands.PollCommand;
-import fr.minuskube.bot.discord.games.Game;
-import fr.minuskube.bot.discord.games.Player;
-import fr.minuskube.bot.discord.util.MessageUtils;
-import fr.minuskube.bot.discord.util.Poll;
-import net.dv8tion.jda.core.Permission;
+import fr.minuskube.bot.discord.util.Quote;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
-import java.util.List;
+public class QuoteListener extends Listener {
 
-public class PollListener extends Listener {
-
-    public PollListener(DiscordBot bot) {
+    public QuoteListener(DiscordBot bot) {
         super(bot);
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent e) {
-        Message msg = e.getMessage();
+    public void onMessageReactionAdd(MessageReactionAddEvent e) {
+        MessageReaction.ReactionEmote emote = e.getReaction().getEmote();
 
-        if(msg.getChannelType() != ChannelType.TEXT)
-            return;
-        if(msg.getContent().length() != 2)
-            return;
-        if(!msg.getContent().startsWith("#"))
+        if(e.getChannel().getType() != ChannelType.TEXT)
             return;
 
-        TextChannel channel = (TextChannel) msg.getChannel();
+        TextChannel channel = (TextChannel) e.getChannel();
         Guild guild = channel.getGuild();
-        Member member = guild.getMember(msg.getAuthor());
+        Member member = guild.getMember(e.getUser());
 
-        Poll poll = PollCommand.getPoll(channel);
+        Quote quote = Quote.fromMessageId(e.getMessageId());
 
-        if(poll == null)
+        if(quote == null)
+            return;
+        if(quote.getAsker() != member)
             return;
 
-        try {
-            if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
-
-            int input = Integer.parseInt(msg.getContent().substring(1));
-
-            if(poll.hasVoted(member))
-                MessageUtils.error(channel, "You already voted on this poll!").queue();
-            else if(input < 1 || input > poll.getChoices().length)
-                MessageUtils.error(channel, "Invalid number.").queue();
-            else
-                poll.vote(member, input - 1);
-        } catch(NumberFormatException ignored) {}
+        if(emote.getName().equals(Quote.EMOTE_NEXT) && quote.hasNext()) {
+            quote.next();
+            e.getReaction().removeReaction(e.getUser()).queue();
+        }
+        else if(emote.getName().equals(Quote.EMOTE_REMOVE))
+            quote.delete();
     }
 
 }
