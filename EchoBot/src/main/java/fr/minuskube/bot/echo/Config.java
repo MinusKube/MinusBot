@@ -1,4 +1,4 @@
-package fr.minuskube.bot.discord;
+package fr.minuskube.bot.echo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,7 @@ public class Config {
 
     private String token;
     private String prefix;
+    private String registerRole;
 
     public void load(File file) {
         try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -29,6 +30,9 @@ public class Config {
                     case "token": this.token = value;
                         break;
                     case "prefix": this.prefix = value;
+                        break;
+                    case "registerrole": this.registerRole = value;
+                        break;
                 }
             }
         } catch(IOException e) {
@@ -43,7 +47,9 @@ public class Config {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("token: PUT_YOUR_TOKEN_HERE");
             writer.newLine();
-            writer.write("prefix: $");
+            writer.write("prefix: !");
+            writer.newLine();
+            writer.write("registerRole: XXX");
         } catch(IOException e) {
             LOGGER.error("Can't save default config: ", e);
         }
@@ -51,5 +57,6 @@ public class Config {
 
     public String getToken() { return token; }
     public String getPrefix() { return prefix; }
+    public String getRegisterRole() { return registerRole; }
 
 }

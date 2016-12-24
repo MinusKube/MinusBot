@@ -1,13 +1,13 @@
-package fr.minuskube.bot.discord.listeners;
+package fr.minuskube.bot.echo.listeners;
 
-import fr.minuskube.bot.discord.DiscordBot;
+import fr.minuskube.bot.echo.EchoBot;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public abstract class Listener extends ListenerAdapter {
 
-    protected DiscordBot bot;
+    protected EchoBot bot;
 
-    public Listener(DiscordBot bot) {
+    public Listener(EchoBot bot) {
         this.bot = bot;
     }
 

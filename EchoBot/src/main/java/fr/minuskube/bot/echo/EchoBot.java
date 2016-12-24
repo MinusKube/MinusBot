@@ -1,36 +1,8 @@
-package fr.minuskube.bot.discord;
+package fr.minuskube.bot.echo;
 
-import com.google.gson.Gson;
-import fr.minuskube.bot.discord.comics.CommitStrip;
-import fr.minuskube.bot.discord.commands.AddCommand;
-import fr.minuskube.bot.discord.commands.ClearCommand;
-import fr.minuskube.bot.discord.commands.ComicsCommand;
-import fr.minuskube.bot.discord.commands.DrawCommand;
-import fr.minuskube.bot.discord.commands.EvalCommand;
-import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
-import fr.minuskube.bot.discord.commands.GamesCommand;
-import fr.minuskube.bot.discord.commands.GifCommand;
-import fr.minuskube.bot.discord.commands.HelpCommand;
-import fr.minuskube.bot.discord.commands.InfosCommand;
-import fr.minuskube.bot.discord.commands.MuteCommand;
-import fr.minuskube.bot.discord.commands.PollCommand;
-import fr.minuskube.bot.discord.commands.QuoteCommand;
-import fr.minuskube.bot.discord.commands.SexCommand;
-import fr.minuskube.bot.discord.commands.StopCommand;
-import fr.minuskube.bot.discord.commands.SuggestCommand;
-import fr.minuskube.bot.discord.commands.TestCommand;
-import fr.minuskube.bot.discord.games.ConnectFourGame;
-import fr.minuskube.bot.discord.games.NumberGame;
-import fr.minuskube.bot.discord.games.RPSGame;
-import fr.minuskube.bot.discord.games.TicTacToeGame;
-import fr.minuskube.bot.discord.listeners.CommandListener;
-import fr.minuskube.bot.discord.listeners.GameListener;
-import fr.minuskube.bot.discord.listeners.MuteListener;
-import fr.minuskube.bot.discord.listeners.PollListener;
-import fr.minuskube.bot.discord.trello.TCPServer;
-import fr.minuskube.bot.discord.util.Webhook;
+import fr.minuskube.bot.echo.commands.RegisterCommand;
+import fr.minuskube.bot.echo.listeners.CommandListener;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
@@ -41,19 +13,17 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-public class DiscordBot {
+public class EchoBot {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordBot.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EchoBot.class);
     public static final String PRIVATE_NOT_ALLOWED = "You can't do this in a private channel.";
 
-    private static DiscordBot instance;
+    private static EchoBot instance;
 
     private JDA client;
     private LocalDateTime launchTime;
 
     private Config config = new Config();
-    private Gson gson = new Gson();
-    private CommitStrip commitStrip;
 
     private void loadConfig() {
         LOGGER.info("Loading config...");
@@ -78,66 +48,22 @@ public class DiscordBot {
         LOGGER.info("Connected on " + client.getGuilds().size() + " guilds with "
                 + client.getUsers().size() + " users!");
 
-        LOGGER.info("Starting server...");
-        new TCPServer().start();
-
-        LOGGER.info("Starting CommitStrip timer...");
-        commitStrip = new CommitStrip();
-        commitStrip.load();
-        commitStrip.start();
-
         LOGGER.info("Registering commands...");
-        DiscordBotAPI.registerCommands(
-                new HelpCommand(),
-                new InfosCommand(),
-                new AddCommand(),
-                new SuggestCommand(),
-                new GifCommand(),
-                new QuoteCommand(),
-                new FakeQuoteCommand(),
-                new GamesCommand(),
-                new TestCommand(),
-                new StopCommand(),
-                new SexCommand(),
-                new DrawCommand(),
-                new MuteCommand(),
-                new PollCommand(),
-                new ClearCommand(),
-                new ComicsCommand(),
-                new EvalCommand()
-        );
-
-        LOGGER.info("Registering games...");
-        DiscordBotAPI.registerGames(
-                new NumberGame(),
-                new TicTacToeGame(),
-                new RPSGame(),
-                new ConnectFourGame()
+        EchoBotAPI.registerCommands(
+                new RegisterCommand()
         );
 
         LOGGER.info("Registering listeners...");
         client.addEventListener(
-                new CommandListener(this),
-                new GameListener(this),
-                new MuteListener(this),
-                new PollListener(this)
+                new CommandListener(this)
         );
 
-        LOGGER.info("Initializing webhooks...");
-        Webhook.initBotHooks();
-        LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
-
-        LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.5.2"));
-
         launchTime = LocalDateTime.now();
-        LOGGER.info("MinusBot (Discord) is ready!");
+        LOGGER.info("EchoBot (Discord) is ready!");
     }
 
     public void stop() {
-        commitStrip.cancel();
-
-        DiscordBotAPI.logout();
+        EchoBotAPI.logout();
         client = null;
 
         System.exit(0);
@@ -148,24 +74,17 @@ public class DiscordBot {
     public LocalDateTime getLaunchTime() { return launchTime; }
 
     public Config getConfig() { return config; }
-    public Gson getGson() { return gson; }
-    public CommitStrip getCommitStrip() { return commitStrip; }
-
-    public String unknownCommand() {
-        return String.format("Sorry, this command is **unknown**. " +
-                "Use %shelp to see available commands.", DiscordBotAPI.prefix());
-    }
 
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {
         try {
-            instance = new DiscordBot();
+            instance = new EchoBot();
             instance.loadConfig();
 
             String token = instance.getConfig().getToken();
 
             if(token != null)
-                DiscordBotAPI.login(token);
+                EchoBotAPI.login(token);
             else
                 LOGGER.error("The 'token' is not set in the config file, can't start.");
         } catch(LoginException | InterruptedException | RateLimitedException e) {
@@ -173,6 +92,6 @@ public class DiscordBot {
         }
     }
 
-    public static DiscordBot instance() { return instance; }
+    public static EchoBot instance() { return instance; }
 
 }

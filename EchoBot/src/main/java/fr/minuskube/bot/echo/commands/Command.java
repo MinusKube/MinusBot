@@ -1,4 +1,4 @@
-package fr.minuskube.bot.discord.commands;
+package fr.minuskube.bot.echo.commands;
 
 import net.dv8tion.jda.core.entities.Message;
 

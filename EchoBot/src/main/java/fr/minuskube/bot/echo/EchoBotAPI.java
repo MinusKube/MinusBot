@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscordBotAPI {
+public class EchoBotAPI {
 
     private static List<Command> commands = new ArrayList<>();
 

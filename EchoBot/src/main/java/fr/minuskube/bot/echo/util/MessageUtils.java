@@ -17,6 +17,18 @@ import java.util.regex.Pattern;
 
 public class MessageUtils {
 
+    public static RestAction<Message> error(MessageChannel channel, String errorTitle, String errorMsg) {
+        return EmbedMessage.send(channel, null, new JSONObject()
+                .put("color", 13107200)
+                .put("thumbnail", new JSONObject().put("url", "http://minuskube.fr/error_icon.png"))
+                .put("fields", new JSONArray().put(new JSONObject()
+                        .put("name","`" + errorTitle + "`")
+                        .put("value", errorMsg))));
+    }
+
+    public static RestAction<Message> error(MessageChannel channel, String errorMsg) {
+        return error(channel, "ERROR!", errorMsg);
+    }
 
     public static List<Member> getMemberMentions(Guild guild, String msg) {
         Pattern pattern = Pattern.compile("<(@|@!)(\\d+)>");
