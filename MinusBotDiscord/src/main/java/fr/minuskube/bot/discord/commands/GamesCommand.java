@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class GamesCommand extends Command {
 
     public GamesCommand() {
-        super("games", Arrays.asList("game", "g"), "Play a game with me!",
+        super("games", Arrays.asList("game", "g"), "Play a game with me, or with a friend!",
                 "");
 
         this.guildOnly = true;

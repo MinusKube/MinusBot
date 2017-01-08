@@ -6,7 +6,6 @@ import fr.minuskube.bot.discord.commands.AddCommand;
 import fr.minuskube.bot.discord.commands.ClearCommand;
 import fr.minuskube.bot.discord.commands.ComicsCommand;
 import fr.minuskube.bot.discord.commands.DrawCommand;
-import fr.minuskube.bot.discord.commands.EvalCommand;
 import fr.minuskube.bot.discord.commands.FakeQuoteCommand;
 import fr.minuskube.bot.discord.commands.GamesCommand;
 import fr.minuskube.bot.discord.commands.GifCommand;
@@ -18,6 +17,7 @@ import fr.minuskube.bot.discord.commands.QuoteCommand;
 import fr.minuskube.bot.discord.commands.StopCommand;
 import fr.minuskube.bot.discord.commands.SuggestCommand;
 import fr.minuskube.bot.discord.commands.TestCommand;
+import fr.minuskube.bot.discord.games.BoxesGame;
 import fr.minuskube.bot.discord.games.ConnectFourGame;
 import fr.minuskube.bot.discord.games.NumberGame;
 import fr.minuskube.bot.discord.games.RPSGame;
@@ -29,6 +29,7 @@ import fr.minuskube.bot.discord.listeners.PollListener;
 import fr.minuskube.bot.discord.listeners.QuoteListener;
 import fr.minuskube.bot.discord.trello.TCPServer;
 import fr.minuskube.bot.discord.util.Webhook;
+import fr.minuskube.bot.discord.util.WordsGenerator;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.User;
@@ -40,6 +41,9 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class DiscordBot {
 
@@ -102,8 +106,7 @@ public class DiscordBot {
                 new MuteCommand(),
                 new PollCommand(),
                 new ClearCommand(),
-                new ComicsCommand(),
-                new EvalCommand()
+                new ComicsCommand()
         );
 
         LOGGER.info("Registering games...");
@@ -111,7 +114,8 @@ public class DiscordBot {
                 new NumberGame(),
                 new TicTacToeGame(),
                 new RPSGame(),
-                new ConnectFourGame()
+                new ConnectFourGame(),
+                new BoxesGame()
         );
 
         LOGGER.info("Registering listeners...");
@@ -128,7 +132,7 @@ public class DiscordBot {
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.6.2"));
+        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.6.3"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
@@ -152,8 +156,19 @@ public class DiscordBot {
     public CommitStrip getCommitStrip() { return commitStrip; }
 
     public String unknownCommand() {
-        return String.format("Sorry, this command is **unknown**. " +
-                "Use %shelp to see available commands.", DiscordBotAPI.prefix());
+        StringBuilder sentence = new StringBuilder();
+        WordsGenerator wg = WordsGenerator.instance();
+
+        List<Character> vowels = Arrays.asList('a', 'e', 'i', 'o', 'u', 'y',
+                'A', 'E', 'I', 'O', 'U', 'Y');
+
+        String adjective = wg.randomAdjective();
+        sentence.append("*That makes me ")
+                .append(new Random().nextBoolean() ? "very " : "a bit ")
+                .append(adjective).append("*");
+
+        return String.format("Sorry, this command is **unknown**.\n   " + sentence.toString() +
+                "\n\nUse %shelp to see available commands.", DiscordBotAPI.prefix());
     }
 
     @SuppressWarnings("deprecation")

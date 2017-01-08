@@ -230,7 +230,7 @@ public class TicTacToeGame extends Game {
 
     private void sendImage(Player player, TextChannel channel, TTTGameData data) {
         if(data.getLastMsg() != null)
-            data.getLastMsg().deleteMessage();
+            data.getLastMsg().deleteMessage().queue();
 
         Member member = player.getMember();
         String userName = member.getEffectiveName();
