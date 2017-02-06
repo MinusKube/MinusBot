@@ -15,8 +15,7 @@ public class TestCommand extends Command {
     }
 
     @Override
-    public void execute(Message msg, String[] args) {
-    }
+    public void execute(Message msg, String[] args) {}
 
     @Override
     public boolean checkSyntax(Message msg, String[] args) { return true; }

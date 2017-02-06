@@ -79,8 +79,6 @@ public class CommandListener extends Listener {
                     MessageUtils.error(msg.getChannel(), "Wrong Syntax",
                             DiscordBotAPI.prefix() + cmdName + " " + cmd.getSyntax()).queue();
             }
-            else
-                MessageUtils.error(msg.getChannel(), DiscordBot.instance().unknownCommand()).queue();
         }).start();
     }
 
