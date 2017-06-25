@@ -48,7 +48,7 @@ public class QuoteCommand extends Command {
             }
 
             if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
+                msg.delete().queue();
         });
     }
 

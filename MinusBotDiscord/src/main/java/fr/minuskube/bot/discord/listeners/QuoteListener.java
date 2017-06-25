@@ -8,8 +8,12 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuoteListener extends Listener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuoteListener.class);
 
     public QuoteListener(DiscordBot bot) {
         super(bot);

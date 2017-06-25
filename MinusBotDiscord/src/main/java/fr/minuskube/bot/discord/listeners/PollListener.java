@@ -46,7 +46,7 @@ public class PollListener extends Listener {
 
         try {
             if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
+                msg.delete().queue();
 
             int input = Integer.parseInt(msg.getContent().substring(1));
 

@@ -1,10 +1,9 @@
 package fr.minuskube.bot.discord.util;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,41 +75,32 @@ public class Poll {
 
     public void send() {
         if(lastMsg != null)
-            lastMsg.deleteMessage().queue();
+            lastMsg.delete().queue();
 
         try {
-            JSONObject embed = new JSONObject()
-                    .put("description", "**" + title + "**")
-                    .put("color", 10526725);
+            EmbedBuilder builder = new EmbedBuilder()
+                    .setDescription("**" + title + "**")
+                    .setColor(Color.WHITE);
 
-            JSONArray fields = new JSONArray();
             for(int i = 0; i < choices.length; i++) {
                 String choice = choices[i];
 
-                fields.put(new JSONObject()
-                        .put("name", choice)
-                        .put("value", "**#" + (i + 1) + "**")
-                        .put("inline", true));
+                builder.addField(choice, "**#" + (i + 1) + "**", true);
             }
 
-            fields.put(new JSONObject()
-                    .put("name", !ended ? "Type `#<number>` in the chat to vote."
-                            : "Stop voting! This poll has ended!")
-                    .put("value", "Total votes:   `" + votes.size() + "`"));
-
-            embed.put("fields", fields);
+            builder.addField(!ended ? "Type `#<number>` in the chat to vote." : "Stop voting! This poll has ended!",
+                    "Total votes:   `" + votes.size() + "`", false);
 
             if(votes.size() > 0) {
                 String fileName = "pie_chart_" + id + "_" + step + ".png";
                 File file = StreamUtils.fileFromImage(new File("/var/www/html/images/bot/" + fileName), createImage());
 
-                LOGGER.debug("FILE: " + fileName);
-                embed.put("image", new JSONObject().put("url", "http://minuskube.fr/images/bot/" + fileName));
+                builder.setImage("http://minuskube.fr/images/bot/" + fileName);
             }
 
-            embed.put("footer", new JSONObject().put("text", "Poll created by " + creator.getUser().getName()));
+            builder.setFooter("Poll created by " + creator.getUser().getName(), "");
 
-            EmbedMessage.send(channel, null, embed).queue(msg -> lastMsg = msg);
+            channel.sendMessage(builder.build()).queue(msg -> lastMsg = msg);
         } catch(IOException e) {
             LOGGER.error("Couldn't create image: ", e);
         }

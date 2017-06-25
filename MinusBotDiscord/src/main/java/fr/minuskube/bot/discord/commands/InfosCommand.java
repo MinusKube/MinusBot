@@ -2,20 +2,18 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import fr.minuskube.bot.discord.util.EmbedMessage;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import java.awt.Color;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 public class InfosCommand extends Command {
 
@@ -26,6 +24,8 @@ public class InfosCommand extends Command {
     @Override
     public void execute(Message msg, String[] args) {
         MessageChannel channel = msg.getChannel();
+
+        msg.delete().queue();
 
         LocalDateTime time = DiscordBot.instance().getLaunchTime();
         Duration uptime = Duration.between(time, LocalDateTime.now());
@@ -43,39 +43,17 @@ public class InfosCommand extends Command {
         else {
             TextChannel textChannel = (TextChannel) channel;
 
-            JSONObject fieldLibs = new JSONObject(new HashMap<String, Object>() {{
-                put("name", "Libraries");
-                put("value", "**JDA, Giphy4J, JTidy**");
-            }});
+            MessageEmbed embed = new EmbedBuilder()
+                    .addField("Libraries", "**JDA, Giphy4J, JTidy**", false)
+                    .addField("Uptime", "**" + DurationFormatUtils.formatDuration(uptime.toMillis(),
+                            "d'd' HH'h' mm'm'") + "**", false)
+                    .addField("Github", "**https://github.com/MinusKube/MinusBot**", false)
+                    .setDescription("*Some informations on " + DiscordBotAPI.self().getAsMention() + ".*")
+                    .setColor(Color.YELLOW)
+                    .setFooter("by MinusKube", "http://minuskube.fr/logo_transparent_crop.png")
+                    .build();
 
-            JSONObject fieldUptime = new JSONObject(new HashMap<String, Object>() {{
-                put("name", "Uptime");
-                put("value", "**" + DurationFormatUtils.formatDuration(uptime.toMillis(),
-                        "d'd' HH'h' mm'm'") + "**");
-            }});
-
-            JSONObject fieldGithub = new JSONObject(new HashMap<String, Object>() {{
-                put("name", "Github");
-                put("value", "**https://github.com/MinusKube/MinusBot**");
-            }});
-
-            JSONObject embed = new JSONObject(new HashMap<String, Object>() {{
-                put("description", "*Some informations on " + DiscordBotAPI.self().getAsMention() + ".*");
-                put("color", 13158450);
-
-                put("fields", new JSONArray(new ArrayList<Object>() {{
-                    add(fieldLibs);
-                    add(fieldUptime);
-                    add(fieldGithub);
-                }}));
-
-                put("footer", new HashMap<String, Object>() {{
-                    put("text", "by MinusKube");
-                    put("icon_url", "http://minuskube.fr/logo_transparent_crop.png");
-                }});
-            }});
-
-            EmbedMessage.send(textChannel, null, embed).queue();
+            textChannel.sendMessage(embed).queue();
         }
 
     }

@@ -163,8 +163,7 @@ public class ActionHandler {
         return new EmbedBuilder()
                 .setFooter(creator.getFullName() + " | on Trello",
                         creator.getAvatarURL())
-                .setTitle(title)
-                .setUrl("https://trello.com/c/" + card.getShortLink())
+                .setTitle(title, "https://trello.com/c/" + card.getShortLink())
                 .setDescription(description)
                 .setColor(color);
     }

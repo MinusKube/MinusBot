@@ -38,7 +38,7 @@ public class ClearCommand extends Command {
         }
 
         if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-            msg.deleteMessage().queue();
+            msg.delete().queue();
 
         String[] queryArgs = Arrays.copyOfRange(args, 1, args.length);
         String query = String.join(" ", (CharSequence[]) queryArgs);
@@ -58,7 +58,7 @@ public class ClearCommand extends Command {
             if(msgs.size() > 1)
                 channel.deleteMessages(msgs).queue();
             else if(!msgs.isEmpty())
-                msgs.get(0).deleteMessage().queue();
+                msgs.get(0).delete().queue();
         });
     }
 

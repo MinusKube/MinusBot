@@ -36,7 +36,7 @@ public class DrawCommand extends Command {
             TextChannel tc = (TextChannel) channel;
 
             if(tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
+                msg.delete().queue();
         }
 
         if(!sessions.containsKey(channel)) {

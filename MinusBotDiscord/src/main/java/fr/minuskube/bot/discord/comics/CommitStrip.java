@@ -67,7 +67,7 @@ public class CommitStrip extends TimerTask {
         }
     }
 
-    public void start() { new Timer().scheduleAtFixedRate(this, 1000, 30 * 60 * 1000); }
+    public void start() { new Timer().scheduleAtFixedRate(this, 1000, 60 * 1000); }
 
     @Override
     public void run() {

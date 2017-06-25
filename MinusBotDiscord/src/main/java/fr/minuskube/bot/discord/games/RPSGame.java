@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +86,7 @@ public class RPSGame extends Game {
                     .append("Please, type `Rock`, `Paper` or `Scissors`...", MessageBuilder.Formatting.ITALICS)
                     .build())
                     .queue(msg_ -> Executors.newScheduledThreadPool(1)
-                            .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
+                            .schedule((Runnable) msg_.delete()::queue, 5, TimeUnit.SECONDS));
             return;
         }
 
@@ -106,14 +105,14 @@ public class RPSGame extends Game {
             data.addAiPts(1);
 
         if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-            msg.deleteMessage().queue();
+            msg.delete().queue();
 
         sendImage(p, channel, data, winner);
     }
 
     private void sendImage(Player player, TextChannel channel, RPSGameData data, byte winner) {
         if(data.getLastMsg() != null)
-            data.getLastMsg().deleteMessage().queue();
+            data.getLastMsg().delete().queue();
 
         Member member = player.getMember();
 
@@ -178,9 +177,9 @@ public class RPSGame extends Game {
             File tempFile = StreamUtils.tempFileFromImage(image, "game-rps-" + member.getUser().getName().toLowerCase(),
                     ".png");
 
-            Message msg = channel.sendFile(tempFile, null).block();
+            Message msg = channel.sendFile(tempFile, null).complete();
             data.setLastMsg(msg);
-        } catch(IOException | RateLimitedException e) {
+        } catch(IOException e) {
             LOGGER.error("Couldn't send image: ", e);
         }
     }

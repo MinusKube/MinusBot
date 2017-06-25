@@ -80,7 +80,7 @@ public class Quote {
         channel.sendMessage(buildEmbed()).queue(msg -> {
             this.message = msg;
 
-            if(msgs != null)
+            if(msgs != null && hasNext())
                 msg.addReaction(EMOTE_NEXT).queue();
 
             msg.addReaction(EMOTE_REMOVE).queue();
@@ -96,10 +96,12 @@ public class Quote {
             public void run() {
                 listening.remove(Quote.this);
 
-                if(hasNext())
-                    MessageUtils.removeReaction(EMOTE_NEXT, message).queue();
+                try {
+                    if(hasNext())
+                        MessageUtils.removeReaction(EMOTE_NEXT, message).queue();
 
-                MessageUtils.removeReaction(EMOTE_REMOVE, message).queue();
+                    MessageUtils.removeReaction(EMOTE_REMOVE, message).queue();
+                } catch(IllegalArgumentException ignored) {}
             }
         };
 
@@ -140,8 +142,10 @@ public class Quote {
         Message newMsg = new MessageBuilder().setEmbed(buildEmbed()).build();
         this.message.editMessage(newMsg).queue();
 
-        if(!hasNext())
-            MessageUtils.removeReaction(EMOTE_NEXT, this.message).queue();
+        try {
+            if(!hasNext())
+                MessageUtils.removeReaction(EMOTE_NEXT, this.message).queue();
+        } catch(IllegalArgumentException ignored) {}
 
         if(task.cancel())
             startTask();
@@ -151,7 +155,7 @@ public class Quote {
 
     public void delete() {
         listening.remove(this);
-        message.deleteMessage().queue();
+        message.delete().queue();
     }
 
     private List<String> splitString(FontMetrics metrics, String txt) {

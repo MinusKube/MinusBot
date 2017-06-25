@@ -74,7 +74,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.BETA2_108</version>
+            <version>3.1.1_217</version>
         </dependency>
         <dependency>
             <groupId>at.mukprojects</groupId>
@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20150729</version>
+            <version>20160810</version>
         </dependency>
         <dependency>
             <groupId>com.rometools</groupId>
@@ -100,6 +100,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.1</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>

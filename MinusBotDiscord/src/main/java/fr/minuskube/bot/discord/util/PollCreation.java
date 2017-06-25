@@ -3,7 +3,6 @@ package fr.minuskube.bot.discord.util;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +36,7 @@ public class PollCreation {
     }
 
     public void start() {
-        try {
-            msgs.add(channel.sendMessage("Please enter the **title** of the poll.").block());
-        } catch(RateLimitedException e) {
-            LOGGER.warn("The request was rate-limited... ", e);
-        }
+        msgs.add(channel.sendMessage("Please enter the **title** of the poll.").complete());
 
         state = 0;
         creations.put(channel, this);
@@ -54,47 +49,43 @@ public class PollCreation {
 
         resetTask();
 
-        try {
-            switch(state) {
-                case 0: {
-                    pollTitle = msg.getContent();
+        switch(state) {
+            case 0: {
+                pollTitle = msg.getContent();
 
-                    msgs.add(channel.sendMessage("Please enter the **first choice** of the poll.").block());
-                    break;
-                }
-                case 1: {
-                    pollChoices = new ArrayList<>();
-                    pollChoices.add(msg.getContent());
-
-                    msgs.add(channel.sendMessage("Please enter the **second choice** of the poll.").block());
-                    break;
-                }
-                case 2: {
-                    pollChoices.add(msg.getContent());
-
-                    msgs.add(channel.sendMessage("Please enter **other choices** for the poll or **end** to finish" +
-                            " the creation...").block());
-                    break;
-                }
-                case 3:
-                case 4:
-                case 5: {
-                    if(msg.getContent().equalsIgnoreCase("end")) {
-                        end();
-                        return;
-                    }
-
-                    pollChoices.add(msg.getContent());
-
-                    msgs.add(channel.sendMessage("Please enter **other choices** for the poll or **end** to finish" +
-                            " the creation...").block());
-                    break;
-                }
-
-                default: end(); return;
+                msgs.add(channel.sendMessage("Please enter the **first choice** of the poll.").complete());
+                break;
             }
-        } catch(RateLimitedException e) {
-            LOGGER.warn("The request was rate-limited... ", e);
+            case 1: {
+                pollChoices = new ArrayList<>();
+                pollChoices.add(msg.getContent());
+
+                msgs.add(channel.sendMessage("Please enter the **second choice** of the poll.").complete());
+                break;
+            }
+            case 2: {
+                pollChoices.add(msg.getContent());
+
+                msgs.add(channel.sendMessage("Please enter **other choices** for the poll or **end** to finish" +
+                        " the creation...").complete());
+                break;
+            }
+            case 3:
+            case 4:
+            case 5: {
+                if(msg.getContent().equalsIgnoreCase("end")) {
+                    end();
+                    return;
+                }
+
+                pollChoices.add(msg.getContent());
+
+                msgs.add(channel.sendMessage("Please enter **other choices** for the poll or **end** to finish" +
+                        " the creation...").complete());
+                break;
+            }
+
+            default: end(); return;
         }
 
         state++;

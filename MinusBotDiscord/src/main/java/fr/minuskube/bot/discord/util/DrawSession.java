@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,7 +209,7 @@ public class DrawSession {
 
     public void send() {
         if(lastMsg != null)
-            lastMsg.deleteMessage().queue();
+            lastMsg.delete().queue();
 
         if(channel.getType() == ChannelType.TEXT) {
             TextChannel tc = (TextChannel) channel;
@@ -226,8 +225,8 @@ public class DrawSession {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "draw-session-" + channel.getId(), ".png");
-            this.lastMsg = channel.sendFile(tempFile, null).block();
-        } catch(IOException | RateLimitedException e) {
+            this.lastMsg = channel.sendFile(tempFile, null).complete();
+        } catch(IOException e) {
             LOGGER.error("Couldn't send image:", e);
         }
     }

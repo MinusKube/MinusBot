@@ -30,7 +30,7 @@ public class MuteListener extends Listener {
         Guild guild = ((TextChannel) msg.getChannel()).getGuild();
 
         if(MuteCommand.isMuted(guild.getMember(msg.getAuthor()), guild))
-            msg.deleteMessage().queue();
+            msg.delete().queue();
     }
 
 }

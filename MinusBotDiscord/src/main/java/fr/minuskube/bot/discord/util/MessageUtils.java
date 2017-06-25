@@ -1,19 +1,17 @@
 package fr.minuskube.bot.discord.util;
 
-import fr.minuskube.bot.discord.DiscordBotAPI;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.requests.Request;
-import net.dv8tion.jda.core.requests.Response;
 import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.requests.Route;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -21,13 +19,14 @@ import java.util.regex.Pattern;
 
 public class MessageUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageUtils.class);
+
     public static RestAction<Message> error(MessageChannel channel, String errorTitle, String errorMsg) {
-        return EmbedMessage.send(channel, null, new JSONObject()
-                .put("color", 13107200)
-                .put("thumbnail", new JSONObject().put("url", "http://minuskube.fr/error_icon.png"))
-                .put("fields", new JSONArray().put(new JSONObject()
-                        .put("name","`" + errorTitle + "`")
-                        .put("value", errorMsg))));
+        return channel.sendMessage(new EmbedBuilder()
+                .setColor(Color.RED)
+                .setThumbnail("http://minuskube.fr/error_icon.png")
+                .addField("`" + errorTitle + "`", errorMsg, false)
+                .build());
     }
 
     public static RestAction<Message> error(MessageChannel channel, String errorMsg) {
@@ -35,21 +34,16 @@ public class MessageUtils {
     }
 
     public static RestAction<Void> removeReaction(String emote, Message message) {
-        Route.CompiledRoute route = Route.Messages.REMOVE_REACTION.compile(message.getChannel().getId(),
-                message.getId(),
-                emote,
-                "@me");
+        message = message.getChannel().getMessageById(message.getId()).complete();
 
-        return new RestAction<Void>(DiscordBotAPI.client(), route, null) {
-            @SuppressWarnings("unchecked")
-            @Override
-            protected void handleResponse(Response response, Request request) {
-                if(response.isOk())
-                    request.onSuccess(null);
-                else
-                    request.onFailure(response);
-            }
-        };
+        return message.getReactions().stream()
+                .filter(reaction -> {
+                    LOGGER.debug(reaction.getEmote().getName() + " / " + emote);
+                    return reaction.getEmote().getName().equals(emote);
+                })
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Emote not found."))
+                .removeReaction();
     }
 
     public static List<Member> getMemberMentions(Guild guild, String msg) {

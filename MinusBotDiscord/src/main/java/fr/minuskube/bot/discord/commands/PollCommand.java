@@ -28,7 +28,7 @@ public class PollCommand extends Command {
         Member member = guild.getMember(msg.getAuthor());
 
         if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-            msg.deleteMessage().queue();
+            msg.delete().queue();
 
         /*
 

@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.Request;
 import net.dv8tion.jda.core.requests.Response;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -57,11 +56,8 @@ public class Webhook {
         };
 
         try {
-            action.block();
+            action.complete();
             return true;
-        } catch(RateLimitedException e) {
-            LOGGER.error("Can't execute webhook: ", e);
-            return false;
         } catch(ErrorResponseException e) {
             if(e.getErrorResponse().getCode() == 10015 || e.getErrorResponse().getCode() == 50027) {
                 LOGGER.info("Creating new webhook.");
@@ -121,11 +117,11 @@ public class Webhook {
         };
 
         try {
-            JSONObject hook = action.block();
+            JSONObject hook = action.complete();
             webhooks.put(channel, new Webhook(channel, hook.getString("id"), hook.getString("token")));
 
             return webhooks.get(channel);
-        } catch(RateLimitedException | ErrorResponseException e) {
+        } catch(ErrorResponseException e) {
             LOGGER.error("Can't create webhook: ", e);
             return null;
         }
@@ -152,7 +148,7 @@ public class Webhook {
             };
 
             try {
-                JSONArray hooks = action.block();
+                JSONArray hooks = action.complete();
 
                 for(Object obj : hooks) {
                     JSONObject hook = (JSONObject) obj;
@@ -167,7 +163,7 @@ public class Webhook {
                     if(user.getString("id").equals(DiscordBotAPI.self().getId()))
                         webhooks.put(channel, new Webhook(channel, id, token));
                 }
-            } catch(RateLimitedException | ErrorResponseException e) {
+            } catch(ErrorResponseException e) {
                 LOGGER.error("Can't get guild webhooks: ", e);
             }
         }

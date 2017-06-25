@@ -42,7 +42,7 @@ public class GifCommand extends Command {
             Guild guild = tc.getGuild();
 
             if(guild.getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
+                msg.delete().queue();
         }
     }
 

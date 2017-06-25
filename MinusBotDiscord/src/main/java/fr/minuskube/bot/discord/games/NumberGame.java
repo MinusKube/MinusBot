@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +60,10 @@ public class NumberGame extends Game {
             }
 
             if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
+                msg.delete().queue();
 
             if(data.getLastMsg() != null)
-                data.getLastMsg().deleteMessage().queue();
+                data.getLastMsg().delete().queue();
 
             data.addTry(input);
 
@@ -88,20 +87,16 @@ public class NumberGame extends Game {
             if(triesLeft > 0) {
                 String triesStr = data.getTries().toString();
 
-                try {
-                    Message msg_ = channel.sendMessage(new MessageBuilder()
-                            .append("\n`Tries: " + triesStr + "`\n\n")
-                            .append("Wrong guess! The correct number is **"
-                                    + (number < input ? "lower" : "higher")
-                                    + "** than " + input + ".\n")
-                            .append("`" + triesLeft + "`" + (triesLeft < 2 ? " try" : " tries") + " left.")
-                            .build())
-                            .block();
+                Message msg_ = channel.sendMessage(new MessageBuilder()
+                        .append("\n`Tries: " + triesStr + "`\n\n")
+                        .append("Wrong guess! The correct number is **"
+                                + (number < input ? "lower" : "higher")
+                                + "** than " + input + ".\n")
+                        .append("`" + triesLeft + "`" + (triesLeft < 2 ? " try" : " tries") + " left.")
+                        .build())
+                        .complete();
 
-                    data.setLastMsg(msg_);
-                } catch(RateLimitedException e) {
-                    LOGGER.error("Couldn't send message:", e);
-                }
+                data.setLastMsg(msg_);
             }
             else {
                 String triesStr = data.getTries().toString();
@@ -121,7 +116,7 @@ public class NumberGame extends Game {
             channel.sendMessage(new MessageBuilder()
                     .append("Sorry, this is not a number...", MessageBuilder.Formatting.ITALICS).build())
                     .queue(msg_ -> Executors.newScheduledThreadPool(1)
-                            .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
+                            .schedule((Runnable) msg_.delete()::queue, 5, TimeUnit.SECONDS));
         }
     }
 

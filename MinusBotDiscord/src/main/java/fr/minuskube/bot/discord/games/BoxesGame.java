@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +105,7 @@ public class BoxesGame extends Game {
                 channel.sendMessage(new MessageBuilder()
                         .append("Wrong format! Valid format: **A-B**", MessageBuilder.Formatting.ITALICS).build())
                         .queue(msg_ -> Executors.newScheduledThreadPool(1)
-                                .schedule((Runnable) msg_.deleteMessage()::queue, 5, TimeUnit.SECONDS));
+                                .schedule((Runnable) msg_.delete()::queue, 5, TimeUnit.SECONDS));
                 return;
             }
 
@@ -192,7 +191,7 @@ public class BoxesGame extends Game {
             }
 
             if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.deleteMessage().queue();
+                msg.delete().queue();
 
             return;
         }
@@ -228,7 +227,7 @@ public class BoxesGame extends Game {
 
     private void sendImage(Player player, TextChannel channel, BoxesGameData data) {
         if(data.getLastMsg() != null)
-            data.getLastMsg().deleteMessage().queue();
+            data.getLastMsg().delete().queue();
 
         Member member = player.getMember();
         String userName = member.getEffectiveName();
@@ -344,10 +343,10 @@ public class BoxesGame extends Game {
             File tempFile = StreamUtils.tempFileFromImage(image, "game-boxes", ".png");
             Message msg = channel.sendFile(tempFile, new MessageBuilder()
                     .append("Turn: ", MessageBuilder.Formatting.BOLD)
-                    .append(data.getTurn().getMember().getUser()).build()).block();
+                    .append(data.getTurn().getMember().getUser()).build()).complete();
 
             data.setLastMsg(msg);
-        } catch(IOException | RateLimitedException e) {
+        } catch(IOException e) {
             LOGGER.error("Couldn't send image: ", e);
         }
     }
