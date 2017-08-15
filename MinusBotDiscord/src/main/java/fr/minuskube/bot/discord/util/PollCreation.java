@@ -1,5 +1,6 @@
 package fr.minuskube.bot.discord.util;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -92,14 +93,17 @@ public class PollCreation {
     }
 
     private void cancel() {
-        channel.deleteMessages(msgs).queue();
+        if(channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+            channel.deleteMessages(msgs).queue();
+
         creations.remove(channel);
     }
 
     public void end() {
         task.cancel();
 
-        channel.deleteMessages(msgs).queue();
+        if(channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+            channel.deleteMessages(msgs).queue();
 
         new Poll(member, channel, pollTitle, pollChoices.toArray(new String[pollChoices.size()]))
                 .start();

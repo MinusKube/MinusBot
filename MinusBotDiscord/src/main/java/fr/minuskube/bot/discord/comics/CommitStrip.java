@@ -61,7 +61,9 @@ public class CommitStrip extends TimerTask {
                 sb.append(channel.getId());
             }
 
-            Files.write(path, sb.toString().getBytes(), StandardOpenOption.CREATE);
+            Files.write(path, sb.toString().getBytes(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
         } catch(IOException e) {
             LOGGER.error("Error while saving channels: ", e);
         }

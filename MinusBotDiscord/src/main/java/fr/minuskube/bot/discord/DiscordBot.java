@@ -128,7 +128,7 @@ public class DiscordBot {
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.6.3"));
+        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.6.4"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
@@ -163,6 +163,8 @@ public class DiscordBot {
                 DiscordBotAPI.login(token);
             else
                 LOGGER.error("The 'token' is not set in the config file, can't start.");
+
+            Runtime.getRuntime().addShutdownHook(new Thread(instance::stop));
         } catch(LoginException | InterruptedException | RateLimitedException e) {
             LOGGER.error("Error while login: ", e);
         }

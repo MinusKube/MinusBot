@@ -83,7 +83,7 @@ public class TCPServer extends Thread {
                     TextChannel channel = DiscordBotAPI.client().getTextChannelById("246007140253171712");
 
                     if(type == null)
-                        builder.append("Unknown type: " + action.getString("type"));
+                        builder.append("Unknown type: ").append(action.getString("type"));
                     else {
                         handler.handle(type, channel,
                                 new ActionData()

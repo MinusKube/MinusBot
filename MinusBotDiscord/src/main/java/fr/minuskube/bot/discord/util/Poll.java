@@ -98,7 +98,7 @@ public class Poll {
                 builder.setImage("http://minuskube.fr/images/bot/" + fileName);
             }
 
-            builder.setFooter("Poll created by " + creator.getUser().getName(), "");
+            builder.setFooter("Poll created by " + creator.getUser().getName(), null);
 
             channel.sendMessage(builder.build()).queue(msg -> lastMsg = msg);
         } catch(IOException e) {

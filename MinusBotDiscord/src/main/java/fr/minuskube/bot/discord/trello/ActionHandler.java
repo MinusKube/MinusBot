@@ -32,8 +32,8 @@ public class ActionHandler {
                 HttpResponse<JsonNode> resp = Unirest.post("https://hastebin.com/documents")
                         .body(msg).asJson();
 
-                channel.sendMessage(new MessageBuilder()
-                        .append("https://hastebin.com/" + resp.getBody().getObject().getString("key") + "\n")
+                channel.sendMessage(new MessageBuilder().append("https://hastebin.com/")
+                        .append(resp.getBody().getObject().getString("key")).append("\n")
                         .append(type.name())
                         .build()).queue();
                 break;
@@ -51,10 +51,16 @@ public class ActionHandler {
         Card card = data.getCard();
 
         MessageEmbed embed = createEmbed(card, "Member added to card!",
-                "** " + data.getMember().getFullName() + "** has been added to the card **"
-                        + card.getName() + "**",
-                new Color(0, 200, 0), data.getCreator())
-                .setThumbnail(data.getMember().getAvatarURL())
+
+                "**[" + card.getName() + "]**\n\n"
+                        + "**" + data.getMember().getFullName() + " (" + data.getMember().getUsername() + ")**",
+
+                new Color(0, 200, 0),
+                data.getCreator())
+
+                .setImage(data.getMember().getAvatarURL())
+
+                .setThumbnail("http://minuskube.fr/images/bot/icons/user-plus-green.png")
                 .build();
 
         channel.sendMessage(embed).queue();
@@ -63,11 +69,17 @@ public class ActionHandler {
     private void handleCardRemoveMember(TextChannel channel, ActionData data) {
         Card card = data.getCard();
 
-        MessageEmbed embed = createEmbed(card, "Member removed from card!",
-                "** " + data.getMember().getFullName() + "** has been removed from the card **"
-                        + card.getName() + "**",
-                new Color(200, 0, 0), data.getCreator())
-                .setThumbnail(data.getMember().getAvatarURL())
+        MessageEmbed embed = createEmbed(card, "Member removed from card",
+
+                "**[" + card.getName() + "]**\n\n"
+                        + "**" + data.getMember().getFullName() + " (" + data.getMember().getUsername() + ")**",
+
+                new Color(200, 0, 0),
+                data.getCreator())
+
+                .setImage(data.getMember().getAvatarURL())
+
+                .setThumbnail("http://minuskube.fr/images/bot/icons/user-times-red.png")
                 .build();
 
         channel.sendMessage(embed).queue();
@@ -85,10 +97,15 @@ public class ActionHandler {
     private void handleCheckItemCreate(TextChannel channel, ActionData data) {
         Card card = data.getCard();
 
-        MessageEmbed embed = createEmbed(card, "Item added to checklist!",
-                "The item **" + data.getItem().getName()
-                        + "** has been added to the list **" + data.getList().getName() + "**",
-                new Color(0, 100, 200), data.getCreator())
+        MessageEmbed embed = createEmbed(card, "Checklist item added",
+
+                "**[" + card.getName() + "]** - " + data.getList().getName() + "\n\n"
+                        + "**" + data.getItem().getName() + "**",
+
+                new Color(0, 200, 0),
+                data.getCreator())
+
+                .setThumbnail("http://minuskube.fr/images/bot/icons/square-plus-green.png")
                 .build();
 
         channel.sendMessage(embed).queue();
@@ -97,10 +114,15 @@ public class ActionHandler {
     private void handleCheckItemDelete(TextChannel channel, ActionData data) {
         Card card = data.getCard();
 
-        MessageEmbed embed = createEmbed(card, "Item removed from checklist!",
-                "The item **" + data.getItem().getName()
-                        + "** has been removed from the list **" + data.getList().getName() + "**",
-                new Color(100, 0, 200), data.getCreator())
+        MessageEmbed embed = createEmbed(card, "Checklist item removed",
+
+                "**[" + card.getName() + "]** - " + data.getList().getName() + "\n\n"
+                        + "**" + data.getItem().getName() + "**",
+
+                new Color(200, 0, 0),
+                data.getCreator())
+
+                .setThumbnail("http://minuskube.fr/images/bot/icons/square-times-red.png")
                 .build();
 
         channel.sendMessage(embed).queue();
@@ -110,11 +132,16 @@ public class ActionHandler {
         Card card = data.getCard();
         String oldName = data.getOld().getString("name");
 
-        MessageEmbed embed = createEmbed(card, "Checklist item updated!",
-                "The item **" + oldName + "** in list *"
-                        + data.getList().getName() + "* has been renamed to **"
-                        + data.getItem().getName() + "**",
-                new Color(200, 200, 0), data.getCreator())
+        MessageEmbed embed = createEmbed(card, "Checklist item renamed",
+
+                "**[" + card.getName() + "]** - " + data.getList().getName() + "\n\n"
+                        + "Before: **" + oldName + "**\n"
+                        + "After: **" + data.getItem().getName() + "**",
+
+                new Color(80, 150, 200),
+                data.getCreator())
+
+                .setThumbnail("http://minuskube.fr/images/bot/icons/square-wrench-blue.png")
                 .build();
 
         channel.sendMessage(embed).queue();
@@ -133,12 +160,39 @@ public class ActionHandler {
         Card card = data.getCard();
         CheckItem.State state = data.getItem().getState();
 
-        MessageEmbed embed = createEmbed(card, "Checklist item updated!",
-                "The item **" + data.getItem().getName() + "** in list *"
-                        + data.getList().getName() + "* has been marked as **"
-                        + state.getName() + "**",
-                new Color(200, 200, 0), data.getCreator())
-                .build();
+        MessageEmbed embed = null;
+
+        switch(state) {
+            case COMPLETE: {
+                embed = createEmbed(card, "Checklist item completed",
+
+                        "**[" + card.getName() + "]** - " + data.getList().getName() + "\n\n"
+                                + "**" + data.getItem().getName() + "**",
+
+                        new Color(0, 200, 0),
+                        data.getCreator())
+
+                        .setThumbnail("http://minuskube.fr/images/bot/icons/square-check-green.png")
+                        .build();
+
+                break;
+            }
+
+            case INCOMPLETE: {
+                embed = createEmbed(card, "Checklist item uncompleted",
+
+                        "**[" + card.getName() + "]** - " + data.getList().getName() + "\n\n"
+                                + "**" + data.getItem().getName() + "**",
+
+                        new Color(200, 0, 0),
+                        data.getCreator())
+
+                        .setThumbnail("http://minuskube.fr/images/bot/icons/square-gray.png?v=2")
+                        .build();
+
+                break;
+            }
+        }
 
         channel.sendMessage(embed).queue();
     }
