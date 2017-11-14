@@ -26,8 +26,8 @@ public class DiscordBotAPI {
 
     public static void stop() { DiscordBot.instance().stop(); }
 
-    public static JDA login(String token) throws LoginException, InterruptedException, RateLimitedException {
-        return new JDABuilder(AccountType.BOT).setToken(token)
+    public static JDA login(boolean client, String token) throws LoginException, InterruptedException, RateLimitedException {
+        return new JDABuilder(client ? AccountType.CLIENT : AccountType.BOT).setToken(token)
                 .addEventListener(new ReadyListener()).buildBlocking();
     }
 

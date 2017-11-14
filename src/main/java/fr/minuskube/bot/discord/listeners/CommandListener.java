@@ -32,7 +32,7 @@ public class CommandListener extends Listener {
             return;
         if(!msg.getContent().startsWith(DiscordBotAPI.prefix()))
             return;
-        if(msg.getAuthor() == DiscordBotAPI.self())
+        if(bot.getConfig().isSelf() != (msg.getAuthor() == DiscordBotAPI.self()))
             return;
 
         if(msg.getChannelType() == ChannelType.TEXT) {
@@ -48,7 +48,8 @@ public class CommandListener extends Listener {
                         .append(channel.getName(), MessageBuilder.Formatting.ITALICS)
                         .append(", I don't have the permission to write messages.").build();
 
-                msg.getAuthor().getPrivateChannel().sendMessage(message).queue();
+                msg.getAuthor().openPrivateChannel()
+                        .queue(privateChan -> privateChan.sendMessage(message).queue());
                 return;
             }
         }

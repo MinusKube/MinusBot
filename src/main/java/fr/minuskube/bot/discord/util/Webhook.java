@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.requests.Request;
 import net.dv8tion.jda.core.requests.Response;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.Route;
+import okhttp3.RequestBody;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -135,7 +136,7 @@ public class Webhook {
                 continue;
 
             RestAction<JSONArray> action = new RestAction<JSONArray>(jda,
-                    Route.Custom.GET_ROUTE.compile("guilds/" + guild.getId() + "/webhooks"), null) {
+                    Route.Custom.GET_ROUTE.compile("guilds/" + guild.getId() + "/webhooks"), (RequestBody) null) {
 
                 @SuppressWarnings("unchecked")
                 @Override

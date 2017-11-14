@@ -17,6 +17,7 @@ import fr.minuskube.bot.discord.commands.QuoteCommand;
 import fr.minuskube.bot.discord.commands.StopCommand;
 import fr.minuskube.bot.discord.commands.SuggestCommand;
 import fr.minuskube.bot.discord.commands.TestCommand;
+import fr.minuskube.bot.discord.commands.TextCommand;
 import fr.minuskube.bot.discord.games.BoxesGame;
 import fr.minuskube.bot.discord.games.ConnectFourGame;
 import fr.minuskube.bot.discord.games.NumberGame;
@@ -102,7 +103,8 @@ public class DiscordBot {
                 new MuteCommand(),
                 new PollCommand(),
                 new ClearCommand(),
-                new ComicsCommand()
+                new ComicsCommand(),
+                new TextCommand()
         );
 
         LOGGER.info("Registering games...");
@@ -128,7 +130,7 @@ public class DiscordBot {
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.6.4"));
+        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.7.0"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
@@ -160,7 +162,7 @@ public class DiscordBot {
             String token = instance.getConfig().getToken();
 
             if(token != null)
-                DiscordBotAPI.login(token);
+                DiscordBotAPI.login(instance.getConfig().isSelf(), token);
             else
                 LOGGER.error("The 'token' is not set in the config file, can't start.");
 

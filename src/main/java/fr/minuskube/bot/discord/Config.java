@@ -14,6 +14,7 @@ public class Config {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
+    private boolean self;
     private String token;
     private String prefix;
 
@@ -26,9 +27,12 @@ public class Config {
                 String value = line.split(":")[1].trim();
 
                 switch(key.toLowerCase()) {
+                    case "self": this.self = Boolean.parseBoolean(value);
+                        break;
                     case "token": this.token = value;
                         break;
                     case "prefix": this.prefix = value;
+                        break;
                 }
             }
         } catch(IOException e) {
@@ -41,6 +45,8 @@ public class Config {
             file.createNewFile();
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("self: false");
+            writer.newLine();
             writer.write("token: PUT_YOUR_TOKEN_HERE");
             writer.newLine();
             writer.write("prefix: $");
@@ -49,6 +55,7 @@ public class Config {
         }
     }
 
+    public boolean isSelf() { return self; }
     public String getToken() { return token; }
     public String getPrefix() { return prefix; }
 

@@ -21,12 +21,12 @@ public class StopCommand extends Command {
             return;
         }
 
-        msg.delete().queue();
+        msg.delete().complete();
 
         msg.getChannel().sendMessage(new MessageBuilder()
                 .append("Goodbye!", MessageBuilder.Formatting.BOLD,
                         MessageBuilder.Formatting.ITALICS).build())
-                .queue();
+                .complete();
 
         DiscordBotAPI.stop();
     }

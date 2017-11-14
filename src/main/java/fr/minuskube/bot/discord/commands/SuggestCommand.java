@@ -63,13 +63,15 @@ public class SuggestCommand extends Command {
                 .append("!").build())
                 .queue();
 
-        DiscordBot.instance().getOwner().getPrivateChannel().sendMessage(new MessageBuilder()
-                .append(msg.getAuthor())
-                .append(" made a suggestion for me!", MessageBuilder.Formatting.BOLD)
-                .append("\n")
-                .append("Content: ", MessageBuilder.Formatting.BOLD)
-                .append(sb.toString()).build())
-                .queue();
+        DiscordBot.instance().getOwner().openPrivateChannel().queue(privateChan ->
+                privateChan.sendMessage(new MessageBuilder()
+                        .append(msg.getAuthor())
+                        .append(" made a suggestion for me!", MessageBuilder.Formatting.BOLD)
+                        .append("\n")
+                        .append("Content: ", MessageBuilder.Formatting.BOLD)
+                        .append(sb.toString()).build())
+                        .queue()
+        );
     }
 
     @Override
