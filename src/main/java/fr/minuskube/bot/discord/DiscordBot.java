@@ -13,6 +13,7 @@ import fr.minuskube.bot.discord.commands.HelpCommand;
 import fr.minuskube.bot.discord.commands.InfosCommand;
 import fr.minuskube.bot.discord.commands.MuteCommand;
 import fr.minuskube.bot.discord.commands.PollCommand;
+import fr.minuskube.bot.discord.commands.PresetCommand;
 import fr.minuskube.bot.discord.commands.QuoteCommand;
 import fr.minuskube.bot.discord.commands.StopCommand;
 import fr.minuskube.bot.discord.commands.SuggestCommand;
@@ -32,6 +33,7 @@ import fr.minuskube.bot.discord.trello.TCPServer;
 import fr.minuskube.bot.discord.util.Webhook;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
@@ -79,6 +81,9 @@ public class DiscordBot {
         LOGGER.info("Connected on " + client.getGuilds().size() + " guilds with "
                 + client.getUsers().size() + " users!");
 
+        for(Guild guild : client.getGuilds())
+            LOGGER.info("  - " + guild.getName() + " (" + guild.getMembers().size() + " users)");
+
         LOGGER.info("Starting server...");
         new TCPServer().start();
 
@@ -104,7 +109,8 @@ public class DiscordBot {
                 new PollCommand(),
                 new ClearCommand(),
                 new ComicsCommand(),
-                new TextCommand()
+                new TextCommand(),
+                new PresetCommand()
         );
 
         LOGGER.info("Registering games...");
@@ -130,7 +136,7 @@ public class DiscordBot {
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
         LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.7.0"));
+        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.8.0"));
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");

@@ -32,6 +32,8 @@ public class CommandListener extends Listener {
             return;
         if(!msg.getContent().startsWith(DiscordBotAPI.prefix()))
             return;
+        if(msg.getAuthor().isBot())
+            return;
         if(bot.getConfig().isSelf() != (msg.getAuthor() == DiscordBotAPI.self()))
             return;
 
