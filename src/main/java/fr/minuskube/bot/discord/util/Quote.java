@@ -1,5 +1,6 @@
 package fr.minuskube.bot.discord.util;
 
+import fr.minuskube.bot.discord.DiscordBot;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -78,15 +79,17 @@ public class Quote {
 
     public void send() {
         channel.sendMessage(buildEmbed()).queue(msg -> {
-            this.message = msg;
+            if(!DiscordBot.instance().getConfig().isSelf()) {
+                this.message = msg;
 
-            if(msgs != null && hasNext())
-                msg.addReaction(EMOTE_NEXT).queue();
+                if(msgs != null && hasNext())
+                    msg.addReaction(EMOTE_NEXT).queue();
 
-            msg.addReaction(EMOTE_REMOVE).queue();
+                msg.addReaction(EMOTE_REMOVE).queue();
 
-            listening.add(this);
-            startTask();
+                listening.add(this);
+                startTask();
+            }
         });
     }
 
@@ -167,26 +170,26 @@ public class Quote {
 
         for(String line : lines) {
             String[] words = line.split(" ");
-            String currentLine = words[0];
+            StringBuilder currentLine = new StringBuilder(words[0]);
 
             for(int i = 1; i < words.length; i++) {
                 if(words[i].contains("\n") || words[i].contains("\r")) {
-                    result.add(currentLine);
-                    currentLine = words[i];
+                    result.add(currentLine.toString());
+                    currentLine = new StringBuilder(words[i]);
 
                     continue;
                 }
 
                 if(metrics.stringWidth(currentLine + words[i]) < maxWidth)
-                    currentLine += " " + words[i];
+                    currentLine.append(" ").append(words[i]);
                 else {
-                    result.add(currentLine);
-                    currentLine = words[i];
+                    result.add(currentLine.toString());
+                    currentLine = new StringBuilder(words[i]);
                 }
             }
 
-            if(currentLine.trim().length() > 0)
-                result.add(currentLine);
+            if(!currentLine.toString().trim().isEmpty())
+                result.add(currentLine.toString());
         }
 
         return result;

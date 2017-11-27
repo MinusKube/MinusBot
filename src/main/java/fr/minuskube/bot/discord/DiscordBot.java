@@ -135,8 +135,10 @@ public class DiscordBot {
         Webhook.initBotHooks();
         LOGGER.info("Initialized " + Webhook.getBotHooks().size() + " webhooks.");
 
-        LOGGER.info("Setting status...");
-        client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.8.0"));
+        if(!config.isSelf()) {
+            LOGGER.info("Setting status...");
+            client.getPresence().setGame(Game.of(DiscordBotAPI.prefix() + "help - v1.8.0"));
+        }
 
         launchTime = LocalDateTime.now();
         LOGGER.info("MinusBot (Discord) is ready!");
