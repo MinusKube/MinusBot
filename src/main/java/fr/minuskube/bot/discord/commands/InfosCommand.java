@@ -19,7 +19,7 @@ import java.util.Collections;
 public class InfosCommand extends Command {
 
     public InfosCommand() {
-        super("infos", Collections.singletonList("info"), "Shows some informations on the bot.", "");
+        super("infos", Collections.singletonList("info"), "Shows some information about the bot.", "");
     }
 
     @Override
@@ -56,7 +56,7 @@ public class InfosCommand extends Command {
                             "d'd' HH'h' mm'm'"), false)
                     .addField("Github", "https://github.com/MinusKube/MinusBot", false)
                     .addField("Ping", DiscordBotAPI.client().getPing() + "ms", false)
-                    .setDescription("*Some informations on " + DiscordBotAPI.self().getAsMention() + ".*")
+                    .setDescription("*Some information about " + DiscordBotAPI.self().getAsMention() + ".*")
                     .setColor(Color.YELLOW)
                     .setFooter("by MinusKube", "http://minuskube.fr/logo_transparent_crop.png")
                     .build();
