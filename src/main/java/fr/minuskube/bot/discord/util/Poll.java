@@ -27,11 +27,11 @@ public class Poll {
 
     private static Map<TextChannel, Poll> polls = new HashMap<>();
 
-    private Member creator;
-    private TextChannel channel;
+    private final Member creator;
+    private final TextChannel channel;
 
-    private String title;
-    private String[] choices;
+    private final String title;
+    private final String[] choices;
     private Map<Member, Integer> votes = new HashMap<>();
 
     private Message lastMsg;

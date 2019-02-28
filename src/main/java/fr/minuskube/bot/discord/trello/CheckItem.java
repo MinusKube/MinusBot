@@ -15,7 +15,7 @@ public class CheckItem extends Component implements Serializable {
         @SerializedName("complete")
         COMPLETE("Complete");
 
-        private String name;
+        private final String name;
 
         State(String name) {
             this.name = name;

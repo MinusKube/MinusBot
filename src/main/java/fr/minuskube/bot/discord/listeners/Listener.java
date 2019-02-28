@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public abstract class Listener extends ListenerAdapter {
 
-    protected DiscordBot bot;
+    protected final DiscordBot bot;
 
     public Listener(DiscordBot bot) {
         this.bot = bot;

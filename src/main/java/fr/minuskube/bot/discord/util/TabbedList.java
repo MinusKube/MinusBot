@@ -6,10 +6,10 @@ public class TabbedList {
 
     private static final int DEFAULT_DISTANCE = 3;
 
-    private String[][] items;
+    private final String[][] items;
     private int[] minSpaces;
 
-    private int distance;
+    private final int distance;
     private int lines;
 
     public TabbedList(String[][] items, int distance) {

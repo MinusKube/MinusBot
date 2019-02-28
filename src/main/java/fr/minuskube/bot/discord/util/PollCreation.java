@@ -20,8 +20,8 @@ public class PollCreation {
 
     private static Map<TextChannel, PollCreation> creations = new HashMap<>();
 
-    private Member member;
-    private TextChannel channel;
+    private final Member member;
+    private final TextChannel channel;
     private short state = -1;
 
     private String pollTitle;

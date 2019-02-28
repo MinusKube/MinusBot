@@ -11,8 +11,8 @@ import java.util.Map;
 
 public abstract class Game {
 
-    protected String name;
-    protected String description;
+    protected final String name;
+    protected final String description;
 
     protected List<Player> players = new ArrayList<>();
     protected Map<Player, GameData> datas = new HashMap<>();

@@ -7,11 +7,11 @@ import java.util.List;
 
 public abstract class Command {
 
-    protected String name;
-    protected List<String> labels;
-    protected String syntax;
+    protected final String name;
+    protected final List<String> labels;
+    protected final String syntax;
 
-    protected String description;
+    protected final String description;
     protected boolean hidden;
     protected boolean guildOnly;
 

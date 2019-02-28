@@ -37,7 +37,7 @@ public enum ActionType {
     LIST_MOVE_TO_BOARD("moveListToBoard"),
     LIST_UPDATE("updateList");
 
-    private String name;
+    private final String name;
 
     ActionType(String name) {
         this.name = name;

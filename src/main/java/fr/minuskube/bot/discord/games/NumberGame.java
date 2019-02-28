@@ -133,7 +133,7 @@ public class NumberGame extends Game {
 
         private List<Integer> tries = new ArrayList<>();
 
-        private int number;
+        private final int number;
         private int triesLeft;
 
         public NumberGameData(TextChannel channel, Player player, int number) {

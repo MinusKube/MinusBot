@@ -10,7 +10,7 @@ public class Player {
 
     private static List<Player> players = new ArrayList<Player>();
 
-    private Member member;
+    private final Member member;
 
     public Player(Member member) {
         this.member = member;
