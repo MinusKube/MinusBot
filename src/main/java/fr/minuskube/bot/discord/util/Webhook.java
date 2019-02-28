@@ -28,10 +28,10 @@ public class Webhook {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Webhook.class);
 
-    private TextChannel channel;
+    private final TextChannel channel;
 
-    private String id;
-    private String token;
+    private final String id;
+    private final String token;
 
     private Webhook(TextChannel channel, String id, String token) {
         this.channel = channel;

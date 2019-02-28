@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 
 public abstract class GameData {
 
-    protected TextChannel channel;
+    protected final TextChannel channel;
     protected Player[] players;
 
     public GameData(TextChannel channel, Player... players) {

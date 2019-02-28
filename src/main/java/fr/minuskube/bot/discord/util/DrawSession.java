@@ -28,15 +28,14 @@ public class DrawSession {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DrawSession.class);
 
-    private int width;
-    private int height;
+    private final int width, height;
 
     private BufferedImage lastImg;
     private BufferedImage image;
 
     private Graphics2D g2d;
 
-    private MessageChannel channel;
+    private final MessageChannel channel;
     private Message lastMsg;
 
     public DrawSession(int width, int height, MessageChannel channel) {

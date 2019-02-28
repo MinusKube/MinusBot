@@ -31,9 +31,9 @@ public class Quote {
 
     private static List<Quote> listening = new ArrayList<>();
 
-    private Member asker;
+    private final Member asker;
 
-    private TextChannel channel;
+    private final TextChannel channel;
     private Member author;
     private User user;
     private String msg;
