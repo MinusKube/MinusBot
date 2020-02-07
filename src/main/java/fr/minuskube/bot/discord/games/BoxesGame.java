@@ -171,7 +171,7 @@ public class BoxesGame extends Game {
 
                 if(p1Score == p2Score) {
                     channel.sendMessage(new MessageBuilder()
-                            .append("The game is ended! ")
+                            .append("The game has ended! ")
                             .append("Nobody won!", MessageBuilder.Formatting.BOLD).build())
                             .queue();
 
@@ -181,7 +181,7 @@ public class BoxesGame extends Game {
                     Player winner = p1Score > p2Score ? data.getPlayer(0) : data.getPlayer(1);
 
                     channel.sendMessage(new MessageBuilder()
-                            .append("The game is ended! ")
+                            .append("The game has ended! ")
                             .append("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
                             .append(winner.getMember().getUser()).build())
                             .queue();
