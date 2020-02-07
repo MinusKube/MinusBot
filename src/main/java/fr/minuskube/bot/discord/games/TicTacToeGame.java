@@ -127,7 +127,7 @@ public class TicTacToeGame extends Game {
 
                 if(winner != null) {
                     channel.sendMessage(new MessageBuilder()
-                            .append("The game is ended! ")
+                            .append("The game has ended! ")
                             .append("THE WINNER IS: ", MessageBuilder.Formatting.BOLD)
                             .append(winner.getMember().getUser()).build())
                             .queue();
@@ -136,7 +136,7 @@ public class TicTacToeGame extends Game {
                 }
                 else if(checkFull(data)) {
                     channel.sendMessage(new MessageBuilder()
-                            .append("The game is ended! ")
+                            .append("The game has ended! ")
                             .append("Nobody won!", MessageBuilder.Formatting.BOLD).build())
                             .queue();
 
