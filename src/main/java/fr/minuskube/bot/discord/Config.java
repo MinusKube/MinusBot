@@ -17,6 +17,7 @@ public class Config {
     private boolean self;
     private String token;
     private String prefix;
+    private String giphyApiKey;
 
     public void load(File file) {
         try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -32,6 +33,8 @@ public class Config {
                     case "token": this.token = value;
                         break;
                     case "prefix": this.prefix = value;
+                        break;
+                    case "giphy-api-key": this.giphyApiKey = value;
                         break;
                 }
             }
@@ -50,6 +53,8 @@ public class Config {
             writer.write("token: PUT_YOUR_TOKEN_HERE");
             writer.newLine();
             writer.write("prefix: $");
+            writer.newLine();
+            writer.write("giphy-api-key: PUT_YOUR_API_KEY_HERE");
         } catch(IOException e) {
             LOGGER.error("Can't save default config: ", e);
         }
@@ -58,5 +63,6 @@ public class Config {
     public boolean isSelf() { return self; }
     public String getToken() { return token; }
     public String getPrefix() { return prefix; }
+    public String getGiphyApiKey() { return giphyApiKey; }
 
 }
