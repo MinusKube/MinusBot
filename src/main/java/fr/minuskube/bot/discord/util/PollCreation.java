@@ -105,7 +105,7 @@ public class PollCreation {
         if(channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
             channel.deleteMessages(msgs).queue();
 
-        new Poll(member, channel, pollTitle, pollChoices.toArray(new String[pollChoices.size()]))
+        new Poll(member, channel, pollTitle, pollChoices.toArray(new String[0]))
                 .start();
 
         creations.remove(channel);
