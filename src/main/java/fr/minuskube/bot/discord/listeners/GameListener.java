@@ -4,12 +4,8 @@ import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.games.Game;
 import fr.minuskube.bot.discord.games.Player;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
@@ -25,12 +21,12 @@ public class GameListener extends Listener {
 
         if(msg.getChannelType() != ChannelType.TEXT)
             return;
-        if(msg.getContent().startsWith(DiscordBotAPI.prefix()))
+        if(msg.getContentDisplay().startsWith(DiscordBotAPI.prefix()))
             return;
 
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member member = guild.getMember(msg.getAuthor());
+        Member member = guild.retrieveMember(msg.getAuthor()).complete();
 
         Game game = DiscordBotAPI.getGameByUser(member);
 

@@ -2,9 +2,9 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.MessageUtils;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

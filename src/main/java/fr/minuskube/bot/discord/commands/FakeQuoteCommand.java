@@ -3,11 +3,11 @@ package fr.minuskube.bot.discord.commands;
 import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.Quote;
 import fr.minuskube.bot.discord.util.Users;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class FakeQuoteCommand extends Command {
             String[] queryArgs = Arrays.copyOfRange(args, 1, args.length);
             String query = String.join(" ", (CharSequence[]) queryArgs);
 
-            Quote quote = new Quote(guild.getMember(msg.getAuthor()), channel, member, query, new Date());
+            Quote quote = new Quote(guild.retrieveMember(msg.getAuthor()).complete(), channel, member, query, new Date());
             quote.send();
         }
         else {

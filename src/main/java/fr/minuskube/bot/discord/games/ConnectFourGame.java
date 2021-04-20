@@ -2,30 +2,18 @@ package fr.minuskube.bot.discord.games;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.StreamUtils;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +34,7 @@ public class ConnectFourGame extends Game {
         }
     }
 
-    private Map<Channel, Player> waitingPlayers = new HashMap<>();
+    private Map<MessageChannel, Player> waitingPlayers = new HashMap<>();
 
     public ConnectFourGame() {
         super("c4", "(Connect Four) You have to connect four discs of the same color next to each other.");
@@ -83,7 +71,7 @@ public class ConnectFourGame extends Game {
     public void receiveMsg(Message msg) {
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member author = guild.getMember(msg.getAuthor());
+        Member author = guild.retrieveMember(msg.getAuthor()).complete();
 
         List<Player> players = Player.getPlayers(author);
 
@@ -98,7 +86,7 @@ public class ConnectFourGame extends Game {
                 continue;
 
             try {
-                int input = Integer.parseInt(msg.getContent());
+                int input = Integer.parseInt(msg.getContentDisplay());
 
                 if(input < 1 || input > 7) {
                     channel.sendMessage(new MessageBuilder()
@@ -259,9 +247,10 @@ public class ConnectFourGame extends Game {
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "game-c4", ".png");
 
-            Message msg = channel.sendFile(tempFile, new MessageBuilder()
+            Message msg = channel.sendMessage(new MessageBuilder()
                     .append("Turn: ", MessageBuilder.Formatting.BOLD)
-                    .append(data.getTurn().getMember().getUser()).build()).complete();
+                    .append(data.getTurn().getMember().getUser()).build())
+                    .addFile(tempFile).complete();
 
             data.setLastMsg(msg);
         } catch(IOException e) {

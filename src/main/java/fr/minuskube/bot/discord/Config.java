@@ -3,18 +3,12 @@ package fr.minuskube.bot.discord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class Config {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
-    private boolean self;
     private String token;
     private String prefix;
     private String giphyApiKey;
@@ -28,8 +22,6 @@ public class Config {
                 String value = line.split(":")[1].trim();
 
                 switch(key.toLowerCase()) {
-                    case "self": this.self = Boolean.parseBoolean(value);
-                        break;
                     case "token": this.token = value;
                         break;
                     case "prefix": this.prefix = value;
@@ -48,8 +40,6 @@ public class Config {
             file.createNewFile();
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("self: false");
-            writer.newLine();
             writer.write("token: PUT_YOUR_TOKEN_HERE");
             writer.newLine();
             writer.write("prefix: $");
@@ -60,7 +50,6 @@ public class Config {
         }
     }
 
-    public boolean isSelf() { return self; }
     public String getToken() { return token; }
     public String getPrefix() { return prefix; }
     public String getGiphyApiKey() { return giphyApiKey; }

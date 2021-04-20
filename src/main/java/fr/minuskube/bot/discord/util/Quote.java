@@ -1,27 +1,18 @@
 package fr.minuskube.bot.discord.util;
 
 import fr.minuskube.bot.discord.DiscordBot;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
+import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class Quote {
 
@@ -63,14 +54,14 @@ public class Quote {
     public Quote(Member asker, TextChannel channel, List<Message> msgs) {
         Message message = msgs.get(0);
 
-        OffsetDateTime odt = message.getCreationTime();
+        OffsetDateTime odt = message.getTimeCreated();
         Date date = Date.from(odt.toInstant());
 
         this.asker = asker;
         this.channel = channel;
-        this.author = !message.isWebhookMessage() ? channel.getGuild().getMember(message.getAuthor()) : null;
+        this.author = !message.isWebhookMessage() ? channel.getGuild().retrieveMember(message.getAuthor()).complete() : null;
         this.user = !message.isWebhookMessage() ? author.getUser() : message.getAuthor();
-        this.msg = message.getRawContent();
+        this.msg = message.getContentRaw();
         this.date = date;
 
         msgs.remove(0);
@@ -79,17 +70,15 @@ public class Quote {
 
     public void send() {
         channel.sendMessage(buildEmbed()).queue(msg -> {
-            if(!DiscordBot.instance().getConfig().isSelf()) {
-                this.message = msg;
+            this.message = msg;
 
-                if(msgs != null && hasNext())
-                    msg.addReaction(EMOTE_NEXT).queue();
+            if(msgs != null && hasNext())
+                msg.addReaction(EMOTE_NEXT).queue();
 
-                msg.addReaction(EMOTE_REMOVE).queue();
+            msg.addReaction(EMOTE_REMOVE).queue();
 
-                listening.add(this);
-                startTask();
-            }
+            listening.add(this);
+            startTask();
         });
     }
 
@@ -134,12 +123,12 @@ public class Quote {
     public void next() {
         Message message = msgs.remove(0);
 
-        OffsetDateTime odt = message.getCreationTime();
+        OffsetDateTime odt = message.getTimeCreated();
         Date date = Date.from(odt.toInstant());
 
-        this.author = !message.isWebhookMessage() ? channel.getGuild().getMember(message.getAuthor()) : null;
+        this.author = !message.isWebhookMessage() ? channel.getGuild().retrieveMember(message.getAuthor()).complete() : null;
         this.user = !message.isWebhookMessage() ? author.getUser() : message.getAuthor();
-        this.msg = message.getRawContent();
+        this.msg = message.getContentRaw();
         this.date = date;
 
         Message newMsg = new MessageBuilder().setEmbed(buildEmbed()).build();

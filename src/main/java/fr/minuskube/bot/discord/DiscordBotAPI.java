@@ -3,12 +3,10 @@ package fr.minuskube.bot.discord;
 import fr.minuskube.bot.discord.commands.Command;
 import fr.minuskube.bot.discord.games.Game;
 import fr.minuskube.bot.discord.listeners.ReadyListener;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.SelfUser;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.SelfUser;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -26,9 +24,10 @@ public class DiscordBotAPI {
 
     public static void stop() { DiscordBot.instance().stop(); }
 
-    public static JDA login(boolean client, String token) throws LoginException, InterruptedException, RateLimitedException {
-        return new JDABuilder(client ? AccountType.CLIENT : AccountType.BOT).setToken(token)
-                .addEventListener(new ReadyListener()).buildBlocking();
+    public static JDA login(String token) throws LoginException, InterruptedException {
+        return JDABuilder.createDefault(token)
+                .addEventListeners(new ReadyListener())
+                .build();
     }
 
     public static void logout() {

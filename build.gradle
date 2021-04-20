@@ -1,0 +1,33 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    maven { url 'https://m2.dv8tion.net/releases' }
+    maven { url 'https://jcenter.bintray.com' }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation('net.dv8tion:JDA:4.2.1_259') {
+        exclude module: 'opus-java'
+    }
+    implementation 'at.mukprojects:giphy4j:1.0.1'
+    implementation 'net.sf.jtidy:jtidy:r938'
+    implementation 'org.json:json:20160810'
+    implementation 'com.rometools:rome:1.7.0'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.apache.commons:commons-collections4:4.1'
+    implementation 'commons-codec:commons-codec:1.10'
+    implementation 'com.mashape.unirest:unirest-java:1.4.9'
+    implementation 'org.jsoup:jsoup:1.10.1'
+    implementation 'com.google.guava:guava:30.0-jre'
+}
+
+application {
+    mainClass = 'fr.minuskube.bot.discord.DiscordBot'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

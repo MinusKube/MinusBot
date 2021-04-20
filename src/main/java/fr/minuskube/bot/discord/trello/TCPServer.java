@@ -1,8 +1,8 @@
 package fr.minuskube.bot.discord.trello;
 
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

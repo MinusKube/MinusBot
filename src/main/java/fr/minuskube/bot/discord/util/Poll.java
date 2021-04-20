@@ -1,17 +1,13 @@
 package fr.minuskube.bot.discord.util;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -95,7 +91,7 @@ public class Poll {
                 String fileName = "pie_chart_" + id + "_" + step + ".png";
                 File file = StreamUtils.fileFromImage(new File("/var/www/html/images/bot/" + fileName), createImage());
 
-                builder.setImage("http://minuskube.fr/images/bot/" + fileName);
+                builder.setImage("https://minuskube.fr/images/bot/" + fileName);
             }
 
             builder.setFooter("Poll created by " + creator.getUser().getName(), null);

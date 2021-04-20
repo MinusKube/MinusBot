@@ -4,10 +4,10 @@ import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.games.Game;
 import fr.minuskube.bot.discord.games.Player;
 import fr.minuskube.bot.discord.util.MessageUtils;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Arrays;
 
@@ -41,14 +41,14 @@ public class GamesCommand extends Command {
         }
 
         if(args[0].equalsIgnoreCase("leave")) {
-            Game game = DiscordBotAPI.getGameByUser(guild.getMember(msg.getAuthor()));
+            Game game = DiscordBotAPI.getGameByUser(guild.retrieveMember(msg.getAuthor()).complete());
 
             if(game == null) {
                 MessageUtils.error(channel, "You're not in a game.").queue();
                 return;
             }
 
-            Player p = Player.getPlayers(guild.getMember(msg.getAuthor())).get(0);
+            Player p = Player.getPlayers(guild.retrieveMember(msg.getAuthor()).complete()).get(0);
             game.end(p, channel);
 
             channel.sendMessage(new MessageBuilder()
@@ -57,7 +57,7 @@ public class GamesCommand extends Command {
             return;
         }
 
-        Game curGame = DiscordBotAPI.getGameByUser(guild.getMember(msg.getAuthor()));
+        Game curGame = DiscordBotAPI.getGameByUser(guild.retrieveMember(msg.getAuthor()).complete());
 
         if(curGame != null && (!curGame.doesAllowDuplicate() || curGame.isFull())) {
             MessageUtils.error(channel, "You're already in a game. Type \""
@@ -72,7 +72,7 @@ public class GamesCommand extends Command {
             return;
         }
 
-        game.start(new Player(guild.getMember(msg.getAuthor())), channel);
+        game.start(new Player(guild.retrieveMember(msg.getAuthor()).complete()), channel);
     }
 
     @Override

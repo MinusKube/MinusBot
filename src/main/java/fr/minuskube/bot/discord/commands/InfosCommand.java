@@ -2,16 +2,16 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -38,9 +38,7 @@ public class InfosCommand extends Command {
                     .append("  \u00bb Uptime: ", MessageBuilder.Formatting.BOLD)
                     .append(DurationFormatUtils.formatDuration(uptime.toMillis(), "d'd' HH'h' mm'm'")).append("\n")
                     .append("  \u00bb Github: ", MessageBuilder.Formatting.BOLD)
-                    .append("https://github.com/MinusKube/MinusBot").append("\n")
-                    .append("  \u00bb Ping: ", MessageBuilder.Formatting.BOLD)
-                    .append(DiscordBotAPI.client().getPing()).build())
+                    .append("https://github.com/MinusKube/MinusBot").append("\n").build())
                     .queue();
         }
         else {
@@ -55,7 +53,6 @@ public class InfosCommand extends Command {
                     .addField("Uptime", DurationFormatUtils.formatDuration(uptime.toMillis(),
                             "d'd' HH'h' mm'm'"), false)
                     .addField("Github", "https://github.com/MinusKube/MinusBot", false)
-                    .addField("Ping", DiscordBotAPI.client().getPing() + "ms", false)
                     .setDescription("*Some information about " + DiscordBotAPI.self().getAsMention() + ".*")
                     .setColor(Color.YELLOW)
                     .setFooter("by MinusKube", "http://minuskube.fr/logo_transparent_crop.png")

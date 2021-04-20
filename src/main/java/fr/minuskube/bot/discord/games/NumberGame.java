@@ -1,11 +1,11 @@
 package fr.minuskube.bot.discord.games;
 
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,13 +44,13 @@ public class NumberGame extends Game {
     public void receiveMsg(Message msg) {
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member author = guild.getMember(msg.getAuthor());
+        Member author = guild.retrieveMember(msg.getAuthor()).complete();
 
         Player p = Player.getPlayers(author).get(0);
         NumberGameData data = ((NumberGameData) datas.get(p));
 
         try {
-            int input = Integer.parseInt(msg.getContent());
+            int input = Integer.parseInt(msg.getContentDisplay());
 
             if(input < 1 || input > MAX) {
                 channel.sendMessage(new MessageBuilder()

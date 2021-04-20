@@ -5,12 +5,8 @@ import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.comics.CommitStrip;
 import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.TabbedList;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 
 import java.util.Collections;
 
@@ -29,7 +25,7 @@ public class ComicsCommand extends Command {
 
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member author = guild.getMember(msg.getAuthor());
+        Member author = guild.retrieveMember(msg.getAuthor()).complete();
 
         if(!author.hasPermission(channel, Permission.ADMINISTRATOR)) {
             MessageUtils.error(channel, "*You don't have the permission to execute this command...*").queue();
@@ -74,7 +70,7 @@ public class ComicsCommand extends Command {
             }
 
             default: {
-                MessageUtils.error(channel, "Unknown command, type " + prefix + "draw to see the available commands.")
+                MessageUtils.error(channel, "Unknown command, type " + prefix + "comics to see the available commands.")
                         .queue();
                 break;
             }

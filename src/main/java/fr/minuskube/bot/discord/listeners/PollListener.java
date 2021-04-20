@@ -4,13 +4,9 @@ import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.Poll;
 import fr.minuskube.bot.discord.util.PollCreation;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PollListener extends Listener {
 
@@ -30,14 +26,14 @@ public class PollListener extends Listener {
     }
 
     private void checkVote(Message msg) {
-        if(msg.getContent().length() != 2)
+        if(msg.getContentDisplay().length() != 2)
             return;
-        if(!msg.getContent().startsWith("#"))
+        if(!msg.getContentDisplay().startsWith("#"))
             return;
 
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member member = guild.getMember(msg.getAuthor());
+        Member member = guild.retrieveMember(msg.getAuthor()).complete();
 
         Poll poll = Poll.getPolls().get(channel);
 
@@ -48,7 +44,7 @@ public class PollListener extends Listener {
             if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
                 msg.delete().queue();
 
-            int input = Integer.parseInt(msg.getContent().substring(1));
+            int input = Integer.parseInt(msg.getContentDisplay().substring(1));
 
             if(poll.hasVoted(member))
                 MessageUtils.error(channel, "You already voted on this poll!").queue();
@@ -60,12 +56,12 @@ public class PollListener extends Listener {
     }
 
     private void checkCreation(Message msg) {
-        if(msg.getContent().startsWith("$"))
+        if(msg.getContentDisplay().startsWith("$"))
             return;
 
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member member = guild.getMember(msg.getAuthor());
+        Member member = guild.retrieveMember(msg.getAuthor()).complete();
 
         PollCreation creation = PollCreation.getCreations().get(channel);
 

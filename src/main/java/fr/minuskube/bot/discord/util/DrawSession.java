@@ -1,23 +1,13 @@
 package fr.minuskube.bot.discord.util;
 
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
@@ -163,7 +153,8 @@ public class DrawSession {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "draw-color-" + channel.getId(), ".png");
-            channel.sendFile(tempFile, new MessageBuilder().append("New color set!").build()).queue();
+            channel.sendMessage(new MessageBuilder().append("New color set!").build())
+                    .addFile(tempFile).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send color image:", e);
         }
@@ -224,7 +215,7 @@ public class DrawSession {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "draw-session-" + channel.getId(), ".png");
-            this.lastMsg = channel.sendFile(tempFile, null).complete();
+            this.lastMsg = channel.sendFile(tempFile).complete();
         } catch(IOException e) {
             LOGGER.error("Couldn't send image:", e);
         }

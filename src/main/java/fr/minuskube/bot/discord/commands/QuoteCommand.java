@@ -2,10 +2,11 @@ package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.Quote;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,27 +30,27 @@ public class QuoteCommand extends Command {
     public void execute(Message msg, String[] args) {
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
+        Member member = guild.retrieveMember(msg.getAuthor()).complete();
 
         String query = String.join(" ", (CharSequence[]) args);
 
-        channel.getHistory().retrievePast(100).queue(msgs -> {
-            msgs.remove(msg);
+        List<Message> msgs = channel.getHistory().retrievePast(100).complete();
+        msgs.remove(msg);
 
-            List<Message> messages = msgs.stream()
-                    .filter(message -> contains(message.getContent(), query)
-                            || contains(message.getRawContent(), query))
-                    .limit(5).collect(Collectors.toList());
+        List<Message> messages = msgs.stream()
+                .filter(message -> contains(message.getContentDisplay(), query)
+                        || contains(message.getContentRaw(), query))
+                .limit(5).collect(Collectors.toList());
 
-            if(!messages.isEmpty()) {
-                Quote quote = new Quote(guild.getMember(msg.getAuthor()), channel, new ArrayList<Message>(messages));
-                quote.send();
-            } else {
-                MessageUtils.error(channel, "No message found...").queue();
-            }
+        if(!messages.isEmpty()) {
+            Quote quote = new Quote(member, channel, new ArrayList<Message>(messages));
+            quote.send();
+        } else {
+            MessageUtils.error(channel, "No message found...").queue();
+        }
 
-            if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
-                msg.delete().queue();
-        });
+        if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
+            msg.delete().queue();
     }
 
     private boolean contains(String container, String msg) {

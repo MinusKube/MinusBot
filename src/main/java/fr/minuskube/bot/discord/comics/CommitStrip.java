@@ -6,8 +6,8 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import fr.minuskube.bot.discord.DiscordBotAPI;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import java.util.TimerTask;
 public class CommitStrip extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommitStrip.class);
-    private static final String FEED_URL = "http://www.commitstrip.com/fr/feed/";
+    private static final String FEED_URL = "https://www.commitstrip.com/fr/feed/";
 
     private List<TextChannel> channels = new ArrayList<>();
     private String lastTitle;

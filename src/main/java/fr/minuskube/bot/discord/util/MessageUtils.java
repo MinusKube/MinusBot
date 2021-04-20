@@ -1,17 +1,12 @@
 package fr.minuskube.bot.discord.util;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -34,12 +29,12 @@ public class MessageUtils {
     }
 
     public static RestAction<Void> removeReaction(String emote, Message message) {
-        message = message.getChannel().getMessageById(message.getId()).complete();
+        message = message.getChannel().retrieveMessageById(message.getId()).complete();
 
         return message.getReactions().stream()
                 .filter(reaction -> {
-                    LOGGER.debug(reaction.getEmote().getName() + " / " + emote);
-                    return reaction.getEmote().getName().equals(emote);
+                    LOGGER.debug(reaction.getReactionEmote().getName() + " / " + emote);
+                    return reaction.getReactionEmote().getName().equals(emote);
                 })
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("Emote not found."))
@@ -88,7 +83,7 @@ public class MessageUtils {
                     matcher.appendReplacement(result, "@" + role.getName());
             }
             else {
-                Channel channel = guild.getJDA().getTextChannelById(id);
+                MessageChannel channel = guild.getJDA().getTextChannelById(id);
 
                 if(channel != null)
                     matcher.appendReplacement(result, "#" + channel.getName());

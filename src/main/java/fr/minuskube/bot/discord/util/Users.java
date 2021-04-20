@@ -1,7 +1,7 @@
 package fr.minuskube.bot.discord.util;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;

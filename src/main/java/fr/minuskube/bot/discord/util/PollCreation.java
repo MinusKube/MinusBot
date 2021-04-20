@@ -1,18 +1,13 @@
 package fr.minuskube.bot.discord.util;
 
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class PollCreation {
 
@@ -52,20 +47,20 @@ public class PollCreation {
 
         switch(state) {
             case 0: {
-                pollTitle = msg.getContent();
+                pollTitle = msg.getContentDisplay();
 
                 msgs.add(channel.sendMessage("Please enter the **first choice** of the poll.").complete());
                 break;
             }
             case 1: {
                 pollChoices = new ArrayList<>();
-                pollChoices.add(msg.getContent());
+                pollChoices.add(msg.getContentDisplay());
 
                 msgs.add(channel.sendMessage("Please enter the **second choice** of the poll.").complete());
                 break;
             }
             case 2: {
-                pollChoices.add(msg.getContent());
+                pollChoices.add(msg.getContentDisplay());
 
                 msgs.add(channel.sendMessage("Please enter **other choices** for the poll or **end** to finish" +
                         " the creation...").complete());
@@ -74,12 +69,12 @@ public class PollCreation {
             case 3:
             case 4:
             case 5: {
-                if(msg.getContent().equalsIgnoreCase("end")) {
+                if(msg.getContentDisplay().equalsIgnoreCase("end")) {
                     end();
                     return;
                 }
 
-                pollChoices.add(msg.getContent());
+                pollChoices.add(msg.getContentDisplay());
 
                 msgs.add(channel.sendMessage("Please enter **other choices** for the poll or **end** to finish" +
                         " the creation...").complete());

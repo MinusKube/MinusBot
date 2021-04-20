@@ -1,11 +1,11 @@
 package fr.minuskube.bot.discord.commands;
 
 import fr.minuskube.bot.discord.util.MessageUtils;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ public class ClearCommand extends Command {
     public void execute(Message msg, String[] args) {
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member author = guild.getMember(msg.getAuthor());
+        Member author = guild.retrieveMember(msg.getAuthor()).complete();
 
         if(!author.hasPermission(channel, Permission.ADMINISTRATOR)) {
             MessageUtils.error(channel, "*You don't have the permission to execute this command...*").queue();
@@ -45,21 +45,20 @@ public class ClearCommand extends Command {
 
         List<Member> mentions = MessageUtils.getMemberMentions(guild, query);
 
-        channel.getHistory().retrievePast(input).queue(msgs -> {
-            if(!mentions.isEmpty()) {
-                for(Message m : new ArrayList<Message>(msgs)) {
-                    Member member = guild.getMember(m.getAuthor());
+        List<Message> msgs = channel.getHistory().retrievePast(input).complete();
+        if(!mentions.isEmpty()) {
+            for(Message m : new ArrayList<Message>(msgs)) {
+                Member member = guild.retrieveMember(m.getAuthor()).complete();
 
-                    if(!mentions.contains(member))
-                        msgs.remove(m);
-                }
+                if(!mentions.contains(member))
+                    msgs.remove(m);
             }
+        }
 
-            if(msgs.size() > 1)
-                channel.deleteMessages(msgs).queue();
-            else if(!msgs.isEmpty())
-                msgs.get(0).delete().queue();
-        });
+        if(msgs.size() > 1)
+            channel.deleteMessages(msgs).queue();
+        else if(!msgs.isEmpty())
+            msgs.get(0).delete().queue();
     }
 
     @Override

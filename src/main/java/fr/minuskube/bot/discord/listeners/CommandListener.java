@@ -5,13 +5,13 @@ import fr.minuskube.bot.discord.DiscordBotAPI;
 import fr.minuskube.bot.discord.commands.Command;
 import fr.minuskube.bot.discord.commands.MuteCommand;
 import fr.minuskube.bot.discord.util.MessageUtils;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,20 +28,18 @@ public class CommandListener extends Listener {
     public void onMessageReceived(MessageReceivedEvent e) {
         Message msg = e.getMessage();
 
-        if(msg.getContent() == null)
-            return;
-        if(!msg.getContent().startsWith(DiscordBotAPI.prefix()))
+        if(!msg.getContentDisplay().startsWith(DiscordBotAPI.prefix()))
             return;
         if(msg.getAuthor().isBot())
             return;
-        if(bot.getConfig().isSelf() != (msg.getAuthor() == DiscordBotAPI.self()))
+        if(msg.getAuthor() == DiscordBotAPI.self())
             return;
 
         if(msg.getChannelType() == ChannelType.TEXT) {
             TextChannel channel = (TextChannel) msg.getChannel();
             Guild guild = channel.getGuild();
 
-            if(MuteCommand.isMuted(guild.getMember(msg.getAuthor()), guild))
+            if(MuteCommand.isMuted(guild.retrieveMember(msg.getAuthor()).complete(), guild))
                 return;
 
             if(!guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) {
@@ -56,7 +54,7 @@ public class CommandListener extends Listener {
             }
         }
 
-        String content = msg.getRawContent().substring(DiscordBotAPI.prefix().length());
+        String content = msg.getContentRaw().substring(DiscordBotAPI.prefix().length());
 
         if(msg.getChannelType() == ChannelType.TEXT)
             LOGGER.info("{} issued command (Guild {}): " + DiscordBotAPI.prefix() + "{}", msg.getAuthor().getName(),

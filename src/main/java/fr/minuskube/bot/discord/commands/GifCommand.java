@@ -6,13 +6,9 @@ import at.mukprojects.giphy4j.exception.GiphyException;
 import fr.minuskube.bot.discord.Config;
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.MessageUtils;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 
 public class GifCommand extends Command {
 

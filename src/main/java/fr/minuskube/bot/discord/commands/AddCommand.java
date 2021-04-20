@@ -1,6 +1,6 @@
 package fr.minuskube.bot.discord.commands;
 
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 
 public class AddCommand extends Command {
 

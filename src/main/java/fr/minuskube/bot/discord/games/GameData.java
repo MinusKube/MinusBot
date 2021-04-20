@@ -1,6 +1,6 @@
 package fr.minuskube.bot.discord.games;
 
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public abstract class GameData {
 

@@ -3,20 +3,15 @@ package fr.minuskube.bot.discord.commands;
 import com.google.common.collect.ImmutableMap;
 import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.StreamUtils;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -127,7 +122,7 @@ public class TextCommand extends Command {
 
         try {
             File tempFile = StreamUtils.tempFileFromImage(image, "potato", ".png");
-            channel.sendFile(tempFile, null).queue();
+            channel.sendFile(tempFile).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send image: ", e);
         }

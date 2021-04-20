@@ -2,22 +2,17 @@ package fr.minuskube.bot.discord.games;
 
 import fr.minuskube.bot.discord.DiscordBot;
 import fr.minuskube.bot.discord.util.StreamUtils;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +53,8 @@ public class RPSGame extends Game {
         try {
             File tempFile = StreamUtils.tempFileFromInputStream(DiscordBot.class.getResourceAsStream("/imgs/rps.png"),
                     "game-rps", ".png");
-            channel.sendFile(tempFile, new MessageBuilder().append("Choose one!").build()).queue();
+            channel.sendMessage(new MessageBuilder().append("Choose one!").build())
+                    .addFile(tempFile).queue();
         } catch(IOException e) {
             LOGGER.error("Couldn't send image:", e);
         }
@@ -68,18 +64,18 @@ public class RPSGame extends Game {
     public void receiveMsg(Message msg) {
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member author = guild.getMember(msg.getAuthor());
+        Member author = guild.retrieveMember(msg.getAuthor()).complete();
 
         Player p = Player.getPlayers(author).get(0);
         RPSGameData data = ((RPSGameData) datas.get(p));
 
         byte choice;
 
-        if(msg.getContent().equalsIgnoreCase("rock"))
+        if(msg.getContentDisplay().equalsIgnoreCase("rock"))
             choice = 0;
-        else if(msg.getContent().equalsIgnoreCase("paper"))
+        else if(msg.getContentDisplay().equalsIgnoreCase("paper"))
             choice = 1;
-        else if(msg.getContent().equalsIgnoreCase("scissors") || msg.getContent().equalsIgnoreCase("scissor"))
+        else if(msg.getContentDisplay().equalsIgnoreCase("scissors") || msg.getContentDisplay().equalsIgnoreCase("scissor"))
             choice = 2;
         else {
             channel.sendMessage(new MessageBuilder()
@@ -177,7 +173,7 @@ public class RPSGame extends Game {
             File tempFile = StreamUtils.tempFileFromImage(image, "game-rps-" + member.getUser().getName().toLowerCase(),
                     ".png");
 
-            Message msg = channel.sendFile(tempFile, null).complete();
+            Message msg = channel.sendFile(tempFile).complete();
             data.setLastMsg(msg);
         } catch(IOException e) {
             LOGGER.error("Couldn't send image: ", e);

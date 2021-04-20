@@ -5,11 +5,11 @@ import fr.minuskube.bot.discord.util.MessageUtils;
 import fr.minuskube.bot.discord.util.Poll;
 import fr.minuskube.bot.discord.util.PollCreation;
 import fr.minuskube.bot.discord.util.TabbedList;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Collections;
 
@@ -25,7 +25,7 @@ public class PollCommand extends Command {
     public void execute(Message msg, String[] args) {
         TextChannel channel = (TextChannel) msg.getChannel();
         Guild guild = channel.getGuild();
-        Member member = guild.getMember(msg.getAuthor());
+        Member member = guild.retrieveMember(msg.getAuthor()).complete();
 
         if(guild.getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE))
             msg.delete().queue();

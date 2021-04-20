@@ -1,6 +1,6 @@
 package fr.minuskube.bot.discord.util;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class RGB {
 
